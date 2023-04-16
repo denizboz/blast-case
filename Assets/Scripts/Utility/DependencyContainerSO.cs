@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Managers;
 using UnityEngine;
 
 namespace Utility
@@ -9,7 +10,7 @@ namespace Utility
     {
         private readonly Dictionary<Type, object> m_systemsDictionary = new Dictionary<Type, object>(8);
 
-        public void Bind<T>(T obj)
+        public void Bind<T>(T obj) where T : Manager
         {
             var type = typeof(T);
 
@@ -19,7 +20,7 @@ namespace Utility
                 m_systemsDictionary.Add(type, obj);
         }
 
-        public T Resolve<T>()
+        public T Resolve<T>() where T : Manager
         {
             var type = typeof(T);
 

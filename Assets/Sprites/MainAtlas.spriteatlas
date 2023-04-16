@@ -70,13 +70,13 @@ SpriteAtlas:
   - cubeParticle2
   - cubeParticle1
   - background
-  - cube_1
-  - cube_2
-  - cube_5
+  - cube_1_yellow
+  - cube_2_red
+  - cube_5_purple
   - duck
-  - cube_3
+  - cube_3_blue
   - balloon
-  - cube_4
+  - cube_4_green
   - rocket_left
   - rocket_right
   - bottom_ui

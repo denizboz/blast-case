@@ -6,14 +6,15 @@ using Utility;
 
 namespace Managers
 {
+    [DefaultExecutionOrder(-40)]
     public class ItemPooler : Manager
     {
         [SerializeField] private SpriteContainer m_spriteContainer;
-        
-        [SerializeField] private Cube[] m_cubes;
-        [SerializeField] private Duck[] m_ducks;
-        [SerializeField] private Rocket[] m_rockets;
-        [SerializeField] private Balloon[] m_balloons;
+
+        [SerializeField] private Item[] m_cubes;
+        [SerializeField] private Item[] m_ducks;
+        [SerializeField] private Item[] m_rockets;
+        [SerializeField] private Item[] m_balloons;
 
         private static readonly Dictionary<Type, Queue<Item>> poolDictionary = new Dictionary<Type, Queue<Item>>(4);
 
@@ -21,14 +22,12 @@ namespace Managers
         protected override void Awake()
         {
             dependencyContainer.Bind<ItemPooler>(this);
-        }
-
-        private void OnEnable()
-        {
-            CreatePool(m_cubes);
-            CreatePool(m_ducks);
-            CreatePool(m_rockets);
-            CreatePool(m_balloons);
+            
+            CreatePool<Cube>(m_cubes);
+            CreatePool<Duck>(m_ducks);
+            CreatePool<Balloon>(m_balloons);
+            
+            // CreatePool(m_rockets);
         }
 
         public T Get<T>() where T : Item
@@ -51,9 +50,9 @@ namespace Managers
             pool.Enqueue(item);
         }
         
-        private static void CreatePool<T>(T[] items) where T : Item
+        private static void CreatePool<T>(Item[] items) where T : Item
         {
-            var pool = new Queue<T>(items.Length);
+            var pool = new Queue<Item>(items.Length);
 
             foreach (var item in items)
             {
@@ -62,7 +61,7 @@ namespace Managers
             }
 
             var type = typeof(T);
-            poolDictionary.Add(type, pool as Queue<Item>);
+            poolDictionary.Add(type, pool);
         }
     }
 }

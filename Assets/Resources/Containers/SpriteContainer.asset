@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f78b5fd24db4482f8b0a7df800d5bded, type: 3}
+  m_Name: SpriteContainer
+  m_EditorClassIdentifier: 
+  m_duckSprite: {fileID: 0}
+  m_rocketSprite: {fileID: 0}
+  m_balloonSprite: {fileID: 0}
+  m_cubeSprites:
+  - {fileID: 21300000, guid: d6795a38d7cb0a8499efd7c6f4eec337, type: 3}
+  - {fileID: 21300000, guid: f47c99ea602c0e24391bb2d2e0c6a73f, type: 3}
+  - {fileID: 21300000, guid: 998f1b4c2f1aaf14cb18f2a2cbc6cc65, type: 3}
+  - {fileID: 21300000, guid: c2cb863e6b00d60419a6c9d82457517e, type: 3}
+  - {fileID: 21300000, guid: 1766f93b9f0c8d641b7cc1906d0355ea, type: 3}

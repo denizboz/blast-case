@@ -12,3 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4375ba479902491e82e6883b1aca5c11, type: 3}
   m_Name: Level_00
   m_EditorClassIdentifier: 
+  BoardSize: {x: 9, y: 9}
+  NumberOfMoves: 50
+  Goals:
+  - Type: 1
+    Target: 25
+  - Type: 2
+    Target: 25
+  - Type: 5
+    Target: 15
