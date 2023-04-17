@@ -18,5 +18,10 @@ namespace Managers
         {
             return m_currentLevel.BoardSize;
         }
+
+        public ProbabilityData GetItemProbabilities()
+        {
+            return m_currentLevel.Probabilities;
+        }
     }
 }

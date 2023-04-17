@@ -8,16 +8,9 @@ namespace Board
     {
         public CubeType Type;
 
-        public void SetType(CubeType type, Sprite sprite)
+        public void SetType(CubeType type)
         {
             Type = type;
-            SRenderer.sprite = sprite;
-        }
-
-        public void SetPositionAndSorting(int x, int y)
-        {
-            Position = new Vector2Int(x, y);
-            SRenderer.sortingOrder = y;
         }
     }
 }

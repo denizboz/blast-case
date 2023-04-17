@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Utility
 {
-    public enum SpriteType { Balloon, Duck, Rocket }
+    public enum SpriteType { Cube, Balloon, Duck, Rocket }
 
     [CreateAssetMenu(fileName = "SpriteContainer", menuName = "Sprite Container")]
     public class SpriteContainer : ScriptableObject
@@ -14,28 +14,16 @@ namespace Utility
         
         [SerializeField] private Sprite[] m_cubeSprites;
 
-        public Sprite GetSprite(SpriteType type)
+        public Sprite GetSprite(SpriteType spriteType, CubeType cubeType = CubeType.Yellow)
         {
-            if (type == SpriteType.Balloon)
+            if (spriteType == SpriteType.Cube)
+                return m_cubeSprites[(int)cubeType];
+            else if (spriteType == SpriteType.Balloon)
                 return m_balloonSprite;
-            else if (type == SpriteType.Duck)
+            else if (spriteType == SpriteType.Duck)
                 return m_duckSprite;
             else
                 return m_rocketSprite;
-        }
-        
-        public Sprite GetCubeSprite(CubeType type)
-        {
-            return m_cubeSprites[(int)type];
-        }
-
-        /// <summary>
-        /// Returns random CubeType and corresponding sprite as a tuple.
-        /// </summary>
-        public (CubeType, Sprite) GetRandomCube()
-        {
-            int rand = Random.Range(0, m_cubeSprites.Length);
-            return ((CubeType)rand, m_cubeSprites[rand]);
         }
     }
 }

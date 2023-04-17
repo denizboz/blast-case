@@ -2,6 +2,6 @@ namespace Board
 {
     public abstract class Booster : Item
     {
-        public abstract void StartAnimation();
+        public abstract void InitiateAction();
     }
 }

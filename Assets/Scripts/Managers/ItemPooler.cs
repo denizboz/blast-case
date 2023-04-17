@@ -13,8 +13,9 @@ namespace Managers
 
         [SerializeField] private Item[] m_cubes;
         [SerializeField] private Item[] m_ducks;
-        [SerializeField] private Item[] m_rockets;
         [SerializeField] private Item[] m_balloons;
+        
+        [SerializeField] private Item[] m_rockets;
 
         private static readonly Dictionary<Type, Queue<Item>> poolDictionary = new Dictionary<Type, Queue<Item>>(4);
 

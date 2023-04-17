@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f78b5fd24db4482f8b0a7df800d5bded, type: 3}
   m_Name: SpriteContainer
   m_EditorClassIdentifier: 
-  m_duckSprite: {fileID: 0}
-  m_rocketSprite: {fileID: 0}
-  m_balloonSprite: {fileID: 0}
+  m_duckSprite: {fileID: 21300000, guid: e55bcb1c8e020f1448e9d9abbc4c420d, type: 3}
+  m_rocketSprite: {fileID: 21300000, guid: 3d125bce664b4d6498725f121c953190, type: 3}
+  m_balloonSprite: {fileID: 21300000, guid: 4149231df36ebc84f93da02f28671ef9, type: 3}
   m_cubeSprites:
   - {fileID: 21300000, guid: d6795a38d7cb0a8499efd7c6f4eec337, type: 3}
   - {fileID: 21300000, guid: f47c99ea602c0e24391bb2d2e0c6a73f, type: 3}

@@ -8,7 +8,7 @@ namespace Managers
         private static Camera mainCam;
         private static Ray ray;
 
-        private bool m_isInputAllowed;
+        private bool m_isInputAllowed = true;
         
         protected override void Awake()
         {
@@ -25,18 +25,14 @@ namespace Managers
             
             if (!Input.GetMouseButtonDown(0))
                 return;
-
+            
             ray = mainCam.ScreenPointToRay(Input.mousePosition);
 
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
                 if (hit.transform.TryGetComponent(out Cube cube))
                 {
-                    GameEvents.Invoke(BoardEvent.CubeHit, cube);
-                }
-                else if (hit.transform.TryGetComponent(out Booster booster))
-                {
-                    booster.StartAnimation();
+                    GameEvents.Invoke(BoardEvent.ItemTapped, cube);
                 }
             }
         }
