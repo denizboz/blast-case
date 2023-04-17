@@ -5,11 +5,13 @@ namespace Managers
     [DefaultExecutionOrder(-50)]
     public class GridManager : Manager
     {
-        private Transform[,] m_gridPoints;
+        private readonly Transform[,] m_gridPoints = new Transform[gridSize, gridSize];
+        
+        private const int gridSize = 9;
         
         private const float boardWidth = 10.9f;
         private const float itemWidth = 1.19f;
-        private const float offset = 0.1f;
+        private const float borderThickness = 0.1f;
 
         protected override void Awake()
         {
@@ -23,17 +25,12 @@ namespace Managers
             var pointsParent = new GameObject("GridPoints").transform;
             pointsParent.parent = transform;
 
-            var gameManager = dependencyContainer.Resolve<GameManager>();
-            var boardSize = gameManager.GetCurrentBoardSize();
-
-            m_gridPoints = new Transform[boardSize.x, boardSize.y];
-
-            for (int i = 0; i < boardSize.x; i++)
+            for (int i = 0; i < gridSize; i++)
             {
-                for (int j = 0; j < boardSize.y; j++)
+                for (int j = 0; j < gridSize; j++)
                 {
-                    var x = offset + (j + 0.5f) * itemWidth - boardWidth / 2f;
-                    var y = offset + (i + 0.5f) * itemWidth - boardWidth / 2f;
+                    var x = borderThickness + (j + 0.5f) * itemWidth - boardWidth / 2f;
+                    var y = borderThickness + (i + 0.5f) * itemWidth - boardWidth / 2f;
 
                     var point = new GameObject($"point_{i.ToString()}")
                     {
@@ -47,6 +44,16 @@ namespace Managers
                     m_gridPoints[i, j] = point.transform;
                 }
             }
+
+            var gameManager = dependencyContainer.Resolve<GameManager>();
+            var boardSize = gameManager.GetCurrentBoardSize();
+
+            var offsetX = boardSize.y % 2 == 1 ? 0f : itemWidth / 2f;
+            var offsetY = boardSize.x % 2 == 1 ? 0f : itemWidth / 2f;
+
+            var offset = new Vector3(offsetX, offsetY, 0f);
+
+            pointsParent.transform.localPosition += offset;
         }
 
         public Vector3 GetWorldPosition(int x, int y)

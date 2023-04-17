@@ -28,23 +28,26 @@ namespace Managers
         {
             var size = m_borders.size;
 
-            var newX = (boardSize.y / 9f) * size.x;
-            var newY = (boardSize.x / 9f) * size.y;
+            var correctionX = Mathf.Lerp(0, 0.08f, (9f - boardSize.y) / 9f);
+            var correctionY = Mathf.Lerp(0, 0.33f, (9f - boardSize.x) / 9f);
+            
+            var newX = (boardSize.y / 9f) * size.x + correctionX;
+            var newY = (boardSize.x / 9f) * size.y + correctionY;
 
             m_borders.size = new Vector2(newX, newY);
         }
         
         private void FillItems(Vector2Int boardSize)
         {
-            var x = boardSize.x;
-            var y = boardSize.y;
-
             var itemPooler = dependencyContainer.Resolve<ItemPooler>();
             var gridManager = dependencyContainer.Resolve<GridManager>();
+
+            var range1 = Utilities.GetMidRange(boardSize.x);
+            var range2 = Utilities.GetMidRange(boardSize.y);
             
-            for (int i = 0; i < x; i++)
+            for (int i = range1.Start; i < range1.End; i++)
             {
-                for (int j = 0; j < y; j++)
+                for (int j = range2.Start; j < range2.End; j++)
                 {
                     var cube = itemPooler.Get<Cube>();
 
