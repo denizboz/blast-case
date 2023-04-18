@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 namespace Board
@@ -6,6 +7,8 @@ namespace Board
     {
         public Vector2Int Position;
         public SpriteRenderer SRenderer;
+
+        private const float fallSpeed = 5f;
         
         public void SetSprite(Sprite sprite)
         {
@@ -16,6 +19,14 @@ namespace Board
         {
             Position = new Vector2Int(x, y);
             SRenderer.sortingOrder = x;
+        }
+
+        public void FallTo(Vector3 pos)
+        {
+            var distance = Vector3.Distance(transform.position, pos);
+            var duration = distance / fallSpeed;
+            
+            transform.DOMove(pos, duration).SetEase(Ease.InQuad);
         }
     }
 }

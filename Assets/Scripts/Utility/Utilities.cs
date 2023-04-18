@@ -21,6 +21,34 @@ namespace Utility
 
             return new IntRange(start, end);
         }
+
+        public static T[] GetRow<T>(this T[,] array, int n)
+        {
+            var count = array.GetLength(1);
+            
+            var row = new T[count];
+            
+            for (int i = 0; i < count; i++)
+            {
+                row[i] = array[n, i];
+            }
+
+            return row;
+        }
+        
+        public static T[] GetColumn<T>(this T[,] array, int n)
+        {
+            var count = array.GetLength(0);
+            
+            var row = new T[count];
+            
+            for (int i = 0; i < count; i++)
+            {
+                row[i] = array[i, n];
+            }
+
+            return row;
+        }
     }
 
     /// <summary>

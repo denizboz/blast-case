@@ -4,12 +4,12 @@ using Board;
 namespace Managers
 {
     public enum CoreEvent { BoardLoaded, GameWon, GameLost }
-    public enum BoardEvent { ItemTapped }
+    public enum BoardEvent { ItemTapped, CubeDestroyed }
     
     public static class GameEvents
     {
         private static event Action boardLoaded, gameWon, gameLost;
-        private static event Action<Item> cubeHitEvent, rocketHitEvent;
+        private static event Action<Item> itemTapped, cubeDestroyed;
         
         
         private static readonly Action[] coreEvents = new Action[]
@@ -19,7 +19,7 @@ namespace Managers
 
         private static readonly Action<Item>[] boardEvents = new Action<Item>[]
         {
-            cubeHitEvent, rocketHitEvent
+            itemTapped, cubeDestroyed
         };
 
         

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Board;
 using Utility;
 using UnityEngine;
@@ -14,6 +15,7 @@ namespace Managers
         private static List<Cube> sameColoredCubes;
 
         private static ItemPooler itemPooler;
+        private static GridManager gridManager;
         private static InputManager inputManager;
         
         private static Item[,] itemsOnBoard;
@@ -33,6 +35,7 @@ namespace Managers
             var boardSize = gameManager.GetCurrentBoardSize();
             
             itemPooler = dependencyContainer.Resolve<ItemPooler>();
+            gridManager = dependencyContainer.Resolve<GridManager>();
             inputManager = dependencyContainer.Resolve<InputManager>();
             
             ResizeBorders(boardSize);
@@ -53,23 +56,63 @@ namespace Managers
             }
         }
 
-        private static void DestroyNeighbouringCubes(Cube cube)
+        private static void DestroyNeighbouringCubes(Cube tappedCube)
         {
             sameColoredCubes = new List<Cube>();
-            FindSameColoredNeighbours(cube, sameColoredCubes);
+            FindSameColoredNeighbours(tappedCube);
 
             if (sameColoredCubes.Count < 2)
                 return;
 
             //inputManager.EnableInput(false);
             
-            foreach (var neighbourCube in sameColoredCubes)
+            foreach (var cube in sameColoredCubes)
             {
-                itemPooler.Return(neighbourCube);
+                var pos = cube.Position;
+
+                RemoveItemFromBoard(cube);
+                itemPooler.Return(cube);
+                
+                GameEvents.Invoke(BoardEvent.CubeDestroyed, cube);
+            }
+
+            MakeItemsFall();
+        }
+
+        private static void MakeItemsFall()
+        {
+            var columns = sameColoredCubes.Select(cube => cube.Position.y).Distinct();
+
+            foreach (var column in columns)
+            {
+                var itemsInColumn = itemsOnBoard.GetColumn(column);
+
+                for (var j = 1; j < itemsInColumn.Length; j++)
+                {
+                    var item1 = itemsInColumn[j];
+
+                    if (!item1)
+                        continue;
+                    
+                    for (int i = 0; i < j; i++)
+                    {
+                        var item2 = itemsInColumn[i];
+
+                        if (item2)
+                            continue;
+                        
+                        UpdateItemPos(item1, i, item1.Position.y);
+                        
+                        var emptyPos = gridManager.GetWorldPosition(i, item1.Position.y);
+                            
+                        item1.FallTo(emptyPos);
+                        break;
+                    }
+                }
             }
         }
         
-        private static void FindSameColoredNeighbours(Cube cube, List<Cube> neighbours)
+        private static void FindSameColoredNeighbours(Cube cube)
         {
             if (sameColoredCubes.Contains(cube))
                 return;
@@ -93,10 +136,31 @@ namespace Managers
                     continue;
                 
                 if (nearCube.Type == cube.Type)
-                    FindSameColoredNeighbours(nearCube, neighbours);
+                    FindSameColoredNeighbours(nearCube);
             }
         }
 
+        private static void AddItemToBoard(Item item)
+        {
+            var pos = item.Position;
+            itemsOnBoard[pos.x, pos.y] = item;
+        }
+
+        private static void RemoveItemFromBoard(Item item)
+        {
+            var pos = item.Position;
+            itemsOnBoard[pos.x, pos.y] = null;
+        }
+
+        private static void UpdateItemPos(Item item, int x, int y)
+        {
+            var oldPos = item.Position;
+            itemsOnBoard[oldPos.x, oldPos.y] = null;
+            
+            item.SetPositionAndSorting(x, y);
+            itemsOnBoard[x, y] = item;
+        }
+        
         private void SetFallProbabilities()
         {
             var gameManager = dependencyContainer.Resolve<GameManager>();
@@ -120,8 +184,6 @@ namespace Managers
         {
             itemsOnBoard = new Item[9, 9];
             
-            var gridManager = dependencyContainer.Resolve<GridManager>();
-
             var range1 = Utilities.GetMidRange(boardSize.x);
             var range2 = Utilities.GetMidRange(boardSize.y);
             
@@ -141,8 +203,8 @@ namespace Managers
                     
                     cube.SetPositionAndSorting(i, j);
                     cube.transform.position = gridManager.GetWorldPosition(i, j);
-
-                    itemsOnBoard[i, j] = cube;
+                    
+                    AddItemToBoard(cube);
                 }
             }
         }
