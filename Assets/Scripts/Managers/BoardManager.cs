@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Board;
 using Utility;
 using UnityEngine;
@@ -10,7 +11,10 @@ namespace Managers
         [SerializeField] private SpriteContainer m_spriteContainer;
         [SerializeField] private SpriteRenderer m_borders;
 
+        private static List<Cube> sameColoredCubes;
+
         private static ItemPooler itemPooler;
+        private static InputManager inputManager;
         
         private static Item[,] itemsOnBoard;
 
@@ -28,17 +32,20 @@ namespace Managers
             var gameManager = dependencyContainer.Resolve<GameManager>();
             var boardSize = gameManager.GetCurrentBoardSize();
             
+            itemPooler = dependencyContainer.Resolve<ItemPooler>();
+            inputManager = dependencyContainer.Resolve<InputManager>();
+            
             ResizeBorders(boardSize);
             FillItems(boardSize);
             
-            SetProbabilitiesForItemFall();
+            SetFallProbabilities();
         }
 
         private static void OnItemTap<T>(T item) where T : Item
         {
             if (item is Cube cube)
             {
-                TryDestroyNeighbouringCubes(cube);
+                DestroyNeighbouringCubes(cube);
             }
             else if (item is Rocket rocket)
             {
@@ -46,61 +53,51 @@ namespace Managers
             }
         }
 
-        private static void TryDestroyNeighbouringCubes(Cube cube)
+        private static void DestroyNeighbouringCubes(Cube cube)
         {
-            var type = cube.Type;
+            sameColoredCubes = new List<Cube>();
+            FindSameColoredNeighbours(cube, sameColoredCubes);
 
+            if (sameColoredCubes.Count < 2)
+                return;
+
+            //inputManager.EnableInput(false);
+            
+            foreach (var neighbourCube in sameColoredCubes)
+            {
+                itemPooler.Return(neighbourCube);
+            }
+        }
+        
+        private static void FindSameColoredNeighbours(Cube cube, List<Cube> neighbours)
+        {
+            if (sameColoredCubes.Contains(cube))
+                return;
+            
+            sameColoredCubes.Add(cube);
+            
             var posX = cube.Position.x;
             var posY = cube.Position.y;
 
-            var left = posX != 0 ? itemsOnBoard[posX - 1, posY] : null;
-            var right = posX != 8 ? itemsOnBoard[posX + 1, posY] : null;
-            var up = posY != 8 ? itemsOnBoard[posX, posY + 1] : null;
-            var down = posY != 0 ? itemsOnBoard[posX, posY - 1] : null;
-
-            bool hasNeighbor = false;
-            
-            if (left is Cube cube1)
+            var adjacentItems = new Item[4]
             {
-                if (cube1.Type == type)
-                {
-                    hasNeighbor = true;
-                    itemPooler.Return(cube1);
-                }
-            }
+                posX != 0 ? itemsOnBoard[posX - 1, posY] : null,
+                posX != 8 ? itemsOnBoard[posX + 1, posY] : null,
+                posY != 8 ? itemsOnBoard[posX, posY + 1] : null,
+                posY != 0 ? itemsOnBoard[posX, posY - 1] : null
+            };
             
-            if (right is Cube cube2)
+            foreach (var item in adjacentItems)
             {
-                if (cube2.Type == type)
-                {
-                    hasNeighbor = true;
-                    itemPooler.Return(cube2);
-                }
+                if (item is not Cube nearCube)
+                    continue;
+                
+                if (nearCube.Type == cube.Type)
+                    FindSameColoredNeighbours(nearCube, neighbours);
             }
-            
-            if (up is Cube cube3)
-            {
-                if (cube3.Type == type)
-                {
-                    hasNeighbor = true;
-                    itemPooler.Return(cube3);
-                }
-            }
-            
-            if (down is Cube cube4)
-            {
-                if (cube4.Type == type)
-                {
-                    hasNeighbor = true;
-                    itemPooler.Return(cube4);
-                }
-            }
-            
-            if (hasNeighbor)
-                itemPooler.Return(cube);
         }
-        
-        private void SetProbabilitiesForItemFall()
+
+        private void SetFallProbabilities()
         {
             var gameManager = dependencyContainer.Resolve<GameManager>();
             m_probabilities = gameManager.GetItemProbabilities();
@@ -123,7 +120,6 @@ namespace Managers
         {
             itemsOnBoard = new Item[9, 9];
             
-            itemPooler = dependencyContainer.Resolve<ItemPooler>();
             var gridManager = dependencyContainer.Resolve<GridManager>();
 
             var range1 = Utilities.GetMidRange(boardSize.x);

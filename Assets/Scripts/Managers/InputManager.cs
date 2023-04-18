@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Managers
 {
+    [DefaultExecutionOrder(-50)]
     public class InputManager : Manager
     {
         private static Camera mainCam;
