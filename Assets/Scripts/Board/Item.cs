@@ -8,7 +8,7 @@ namespace Board
         public Vector2Int Position;
         public SpriteRenderer SRenderer;
 
-        private const float fallSpeed = 5f;
+        private const float fallSpeed = 6.5f;
         
         public void SetSprite(Sprite sprite)
         {

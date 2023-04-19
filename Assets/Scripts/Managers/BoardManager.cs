@@ -78,39 +78,6 @@ namespace Managers
 
             MakeItemsFall();
         }
-
-        private static void MakeItemsFall()
-        {
-            var columns = sameColoredCubes.Select(cube => cube.Position.y).Distinct();
-
-            foreach (var column in columns)
-            {
-                var itemsInColumn = itemsOnBoard.GetColumn(column);
-
-                for (var j = 1; j < itemsInColumn.Length; j++)
-                {
-                    var item1 = itemsInColumn[j];
-
-                    if (!item1)
-                        continue;
-                    
-                    for (int i = 0; i < j; i++)
-                    {
-                        var item2 = itemsInColumn[i];
-
-                        if (item2)
-                            continue;
-                        
-                        UpdateItemPos(item1, i, item1.Position.y);
-                        
-                        var emptyPos = gridManager.GetWorldPosition(i, item1.Position.y);
-                            
-                        item1.FallTo(emptyPos);
-                        break;
-                    }
-                }
-            }
-        }
         
         private static void FindSameColoredNeighbours(Cube cube)
         {
@@ -140,6 +107,38 @@ namespace Managers
             }
         }
 
+        private static void MakeItemsFall()
+        {
+            var columns = sameColoredCubes.Select(cube => cube.Position.y).Distinct();
+
+            foreach (var column in columns)
+            {
+                for (int j = 1; j < 9; j++)
+                {
+                    var itemsInColumn = itemsOnBoard.GetColumn(column);
+                    
+                    var item1 = itemsInColumn[j];
+
+                    if (!item1)
+                        continue;
+                    
+                    for (int k = 0; k < j; k++)
+                    {
+                        var item2 = itemsInColumn[k];
+
+                        if (item2)
+                            continue;
+
+                        UpdateItemPos(item1, k, item1.Position.y);
+                        var emptyPos = gridManager.GetWorldPosition(k, item1.Position.y);
+                        item1.FallTo(emptyPos);
+                        
+                        break;
+                    }
+                }
+            }
+        }
+        
         private static void AddItemToBoard(Item item)
         {
             var pos = item.Position;
@@ -205,6 +204,10 @@ namespace Managers
                     cube.transform.position = gridManager.GetWorldPosition(i, j);
                     
                     AddItemToBoard(cube);
+
+                    // for debug - remove before build:
+                    cube.name = $"cube_{i}{j}";
+                    // :for debug - remove before build
                 }
             }
         }
