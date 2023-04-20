@@ -3,10 +3,11 @@ using System.Linq;
 using Board;
 using Utility;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Managers
 {
-    [DefaultExecutionOrder(-30)]
+    [DefaultExecutionOrder(-10)]
     public class BoardManager : Manager
     {
         [SerializeField] private SpriteContainer m_spriteContainer;
@@ -15,6 +16,8 @@ namespace Managers
         private static Item[,] itemsOnBoard;
         
         private static List<Cube> sameColoredCubes;
+        private static List<Balloon> poppedBalloons;
+        private static IEnumerable<Item> destroyedItems;
 
         private static ItemPooler itemPooler;
         private static GridManager gridManager;
@@ -25,7 +28,8 @@ namespace Managers
 
         private static int bottom, top;
         public const int MaxSize = 9;
-
+        
+        
         protected override void Awake()
         {
             dependencyContainer.Bind<BoardManager>(this);
@@ -53,7 +57,7 @@ namespace Managers
         {
             if (item is Cube cube)
             {
-                DestroyNeighbouringCubes(cube);
+                DestroyNeighbouringItems(cube);
             }
             else if (item is Rocket rocket)
             {
@@ -61,9 +65,11 @@ namespace Managers
             }
         }
 
-        private void DestroyNeighbouringCubes(Cube tappedCube)
+        private void DestroyNeighbouringItems(Cube tappedCube)
         {
             sameColoredCubes = new List<Cube>();
+            poppedBalloons = new List<Balloon>();
+            
             FindSameColoredNeighbours(tappedCube);
 
             if (sameColoredCubes.Count < 2)
@@ -79,19 +85,27 @@ namespace Managers
                 GameEvents.Invoke(BoardEvent.CubeDestroyed, cube);
             }
 
+            foreach (var balloon in poppedBalloons)
+            {
+                RemoveItemFromBoard(balloon);
+                itemPooler.Return(balloon);
+                
+                GameEvents.Invoke(BoardEvent.BalloonPopped, balloon);
+            }
+            
             MakeItemsFall();
             SpawnNewItems();
         }
         
-        private static void FindSameColoredNeighbours(Cube cube)
+        private static void FindSameColoredNeighbours(Cube centerCube)
         {
-            if (sameColoredCubes.Contains(cube))
+            if (sameColoredCubes.Contains(centerCube))
                 return;
             
-            sameColoredCubes.Add(cube);
+            sameColoredCubes.Add(centerCube);
             
-            var posX = cube.Position.x;
-            var posY = cube.Position.y;
+            var posX = centerCube.Position.x;
+            var posY = centerCube.Position.y;
 
             const int n = MaxSize - 1;
             var adjacentItems = new Item[4]
@@ -104,17 +118,29 @@ namespace Managers
             
             foreach (var item in adjacentItems)
             {
-                if (item is not Cube nearCube)
+                if (item is Balloon balloon)
+                {
+                    if (!poppedBalloons.Contains(balloon))
+                        poppedBalloons.Add(balloon);
+
+                    continue;
+                }
+                
+                if (item is not Cube cube)
                     continue;
                 
-                if (nearCube.Type == cube.Type)
-                    FindSameColoredNeighbours(nearCube);
+                if (cube.Type == centerCube.Type)
+                    FindSameColoredNeighbours(cube);
             }
         }
 
-        private void MakeItemsFall()
+        private static void MakeItemsFall()
         {
-            var columnIndices = sameColoredCubes.Select(cube => cube.Position.y).Distinct();
+            var cubes = sameColoredCubes.Cast<Item>();
+            var balloons = poppedBalloons.Cast<Item>();
+
+            destroyedItems = cubes.Concat(balloons);
+            var columnIndices = destroyedItems.Select(item => item.Position.y).Distinct();
 
             foreach (var columnIndex in columnIndices)
             {
@@ -146,7 +172,7 @@ namespace Managers
 
         private void SpawnNewItems()
         {
-            var groups = sameColoredCubes.GroupBy(cube => cube.Position.y);
+            var groups = destroyedItems.GroupBy(item => item.Position.y);
             
             foreach (var group in groups)
             {
@@ -157,31 +183,37 @@ namespace Managers
                 {
                     var finalPos = new Vector2Int(i, column);
                     
-                    var rand = Random.value;
+                    var randVal = Random.value;
 
-                    if (rand < m_probabilities.Cube)
+                    if (randVal < m_probabilities.Cube)
                     {
                         var cube = (Cube)itemSpawner.Spawn<Cube>(finalPos);
                         var type = (CubeType)Random.Range(0, Cube.VarietySize);
 
                         cube.SetType(type);
                         cube.SetSprite(m_spriteContainer.GetSprite(SpriteType.Cube, type));
+                        
+                        AddItemToBoard(cube);
                     }
-                    else if (rand < m_probabilities.Cube + m_probabilities.Balloon)
+                    else if (randVal < m_probabilities.Cube + m_probabilities.Balloon)
                     {
                         var balloon = itemSpawner.Spawn<Balloon>(finalPos);
                         balloon.SetSprite(m_spriteContainer.GetSprite(SpriteType.Balloon));
+                        
+                        AddItemToBoard(balloon);
                     }
                     else
                     {
                         var duck = itemSpawner.Spawn<Duck>(finalPos);
                         duck.SetSprite(m_spriteContainer.GetSprite(SpriteType.Duck));
+                        
+                        AddItemToBoard(duck);
                     }
                 }
             }
         }
         
-        public void AddItemToBoard(Item item)
+        private static void AddItemToBoard(Item item)
         {
             var pos = item.Position;
             itemsOnBoard[pos.x, pos.y] = item;

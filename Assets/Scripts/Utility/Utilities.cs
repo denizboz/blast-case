@@ -66,16 +66,16 @@ namespace Utility
             return new Vector3(v.x, v.y, z);
         }
 
-        public static void Debug(object obj1)
+        public static void Log(object obj1)
         {
             UnityEngine.Debug.Log(obj1.ToString());
         }
-        public static void Debug(object obj1, object obj2)
+        public static void Log(object obj1, object obj2)
         {
             UnityEngine.Debug.Log($"{obj1.ToString()} | {obj2.ToString()}");
         }
         
-        public static void Debug(object obj1, object obj2, object obj3)
+        public static void Log(object obj1, object obj2, object obj3)
         {
             UnityEngine.Debug.Log($"{obj1.ToString()} | {obj2.ToString()} | {obj3.ToString()}");
         }

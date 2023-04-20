@@ -3,7 +3,6 @@ using Utility;
 
 namespace Managers
 {
-    [DefaultExecutionOrder(-50)]
     public class GridManager : Manager
     {
         private readonly Transform[,] m_gridPoints = new Transform[gridSize, gridSize];
@@ -14,7 +13,7 @@ namespace Managers
         private const float itemWidth = 1.19f;
         private const float borderThickness = 0.1f;
 
-        private const float spawnHeight = 10f;
+        private const float spawnHeight = 6f;
 
         protected override void Awake()
         {
@@ -69,9 +68,9 @@ namespace Managers
             return m_gridPoints[gridPos.x, gridPos.y].position;
         }
         
-        public Vector3 GetSpawnPosition(int column)
+        public Vector3 GetSpawnPosition(Vector2Int gridPos)
         {
-            return m_gridPoints[0, column].position.WithY((spawnHeight));
+            return GetWorldPosition(gridPos) + spawnHeight * Vector3.up;
         }
     }
 }
