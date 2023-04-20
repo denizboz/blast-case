@@ -11,16 +11,20 @@ namespace Managers
     {
         [SerializeField] private SpriteContainer m_spriteContainer;
         [SerializeField] private SpriteRenderer m_borders;
-
+        
+        private static Item[,] itemsOnBoard;
+        
         private static List<Cube> sameColoredCubes;
 
         private static ItemPooler itemPooler;
         private static GridManager gridManager;
         private static InputManager inputManager;
         
-        private static Item[,] itemsOnBoard;
+        private static readonly Vector2Int[] spawnPositions = new Vector2Int[maxSize];
+        private static ProbabilityData m_probabilities;
 
-        private ProbabilityData m_probabilities;
+        private static int bottom;
+        private const int maxSize = 9;
 
         protected override void Awake()
         {
@@ -68,8 +72,6 @@ namespace Managers
             
             foreach (var cube in sameColoredCubes)
             {
-                var pos = cube.Position;
-
                 RemoveItemFromBoard(cube);
                 itemPooler.Return(cube);
                 
@@ -113,7 +115,7 @@ namespace Managers
 
             foreach (var column in columns)
             {
-                for (int j = 1; j < 9; j++)
+                for (int j = bottom + 1; j < maxSize; j++)
                 {
                     var itemsInColumn = itemsOnBoard.GetColumn(column);
                     
@@ -122,7 +124,7 @@ namespace Managers
                     if (!item1)
                         continue;
                     
-                    for (int k = 0; k < j; k++)
+                    for (int k = bottom; k < j; k++)
                     {
                         var item2 = itemsInColumn[k];
 
@@ -131,7 +133,7 @@ namespace Managers
 
                         UpdateItemPos(item1, k, item1.Position.y);
                         var emptyPos = gridManager.GetWorldPosition(k, item1.Position.y);
-                        item1.FallTo(emptyPos);
+                        item1.MoveTo(emptyPos);
                         
                         break;
                     }
@@ -181,10 +183,12 @@ namespace Managers
         
         private void FillItems(Vector2Int boardSize)
         {
-            itemsOnBoard = new Item[9, 9];
+            itemsOnBoard = new Item[maxSize, maxSize];
             
             var range1 = Utilities.GetMidRange(boardSize.x);
             var range2 = Utilities.GetMidRange(boardSize.y);
+
+            bottom = range1.Start;
             
             for (int i = range1.Start; i < range1.End; i++)
             {
@@ -202,12 +206,8 @@ namespace Managers
                     
                     cube.SetPositionAndSorting(i, j);
                     cube.transform.position = gridManager.GetWorldPosition(i, j);
-                    
-                    AddItemToBoard(cube);
 
-                    // for debug - remove before build:
-                    cube.name = $"cube_{i}{j}";
-                    // :for debug - remove before build
+                    itemsOnBoard[i, j] = cube;
                 }
             }
         }

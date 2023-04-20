@@ -21,7 +21,7 @@ namespace Board
             SRenderer.sortingOrder = x;
         }
 
-        public void FallTo(Vector3 pos)
+        public void MoveTo(Vector3 pos, float speed = fallSpeed)
         {
             var distance = Vector3.Distance(transform.position, pos);
             var duration = distance / fallSpeed;
