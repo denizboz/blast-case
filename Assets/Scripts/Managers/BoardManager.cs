@@ -141,42 +141,9 @@ namespace Managers
                         break;
                     }
                 }
-                
-                //SpawnItemsToColumn(columnIndex, highestRow);
             }
         }
 
-        private void SpawnItemsToColumn(int columnIndex, int highestRow)
-        {
-            Utilities.Debug(columnIndex, highestRow, top);
-            
-            for (int i = highestRow + 1; i < top + 1; i++)
-            {
-                var finalPos = new Vector2Int(i, columnIndex);
-                
-                var rand = Random.value;
-
-                if (rand < m_probabilities.Cube)
-                {
-                    var cube = (Cube)itemSpawner.Spawn<Cube>(finalPos);
-                    var type = (CubeType)Random.Range(0, Cube.VarietySize);
-
-                    cube.SetType(type);
-                    cube.SetSprite(m_spriteContainer.GetSprite(SpriteType.Cube, type));
-                }
-                else if (rand < m_probabilities.Cube + m_probabilities.Balloon)
-                {
-                    var balloon = itemSpawner.Spawn<Balloon>(finalPos);
-                    balloon.SetSprite(m_spriteContainer.GetSprite(SpriteType.Balloon));
-                }
-                else
-                {
-                    var duck = itemSpawner.Spawn<Duck>(finalPos);
-                    duck.SetSprite(m_spriteContainer.GetSprite(SpriteType.Duck));
-                }
-            }
-        }
-        
         private void SpawnNewItems()
         {
             var groups = sameColoredCubes.GroupBy(cube => cube.Position.y);
