@@ -18,13 +18,13 @@ namespace Managers
 
         private static ItemPooler itemPooler;
         private static GridManager gridManager;
+        private static ItemSpawner itemSpawner;
         private static InputManager inputManager;
         
-        private static readonly Vector2Int[] spawnPositions = new Vector2Int[maxSize];
         private static ProbabilityData m_probabilities;
 
-        private static int bottom;
-        private const int maxSize = 9;
+        private static int bottom, top;
+        public const int MaxSize = 9;
 
         protected override void Awake()
         {
@@ -33,13 +33,14 @@ namespace Managers
             GameEvents.AddListener(BoardEvent.ItemTapped, OnItemTap);
         }
 
-        private void OnEnable()
+        private void Start()
         {
             var gameManager = dependencyContainer.Resolve<GameManager>();
             var boardSize = gameManager.GetCurrentBoardSize();
             
             itemPooler = dependencyContainer.Resolve<ItemPooler>();
             gridManager = dependencyContainer.Resolve<GridManager>();
+            itemSpawner = dependencyContainer.Resolve<ItemSpawner>();
             inputManager = dependencyContainer.Resolve<InputManager>();
             
             ResizeBorders(boardSize);
@@ -48,7 +49,7 @@ namespace Managers
             SetFallProbabilities();
         }
 
-        private static void OnItemTap<T>(T item) where T : Item
+        private void OnItemTap<T>(T item) where T : Item
         {
             if (item is Cube cube)
             {
@@ -60,7 +61,7 @@ namespace Managers
             }
         }
 
-        private static void DestroyNeighbouringCubes(Cube tappedCube)
+        private void DestroyNeighbouringCubes(Cube tappedCube)
         {
             sameColoredCubes = new List<Cube>();
             FindSameColoredNeighbours(tappedCube);
@@ -79,6 +80,7 @@ namespace Managers
             }
 
             MakeItemsFall();
+            SpawnNewItems();
         }
         
         private static void FindSameColoredNeighbours(Cube cube)
@@ -91,12 +93,13 @@ namespace Managers
             var posX = cube.Position.x;
             var posY = cube.Position.y;
 
+            const int n = MaxSize - 1;
             var adjacentItems = new Item[4]
             {
                 posX != 0 ? itemsOnBoard[posX - 1, posY] : null,
-                posX != 8 ? itemsOnBoard[posX + 1, posY] : null,
-                posY != 8 ? itemsOnBoard[posX, posY + 1] : null,
-                posY != 0 ? itemsOnBoard[posX, posY - 1] : null
+                posX != n ? itemsOnBoard[posX + 1, posY] : null,
+                posY != 0 ? itemsOnBoard[posX, posY - 1] : null,
+                posY != n ? itemsOnBoard[posX, posY + 1] : null
             };
             
             foreach (var item in adjacentItems)
@@ -109,21 +112,21 @@ namespace Managers
             }
         }
 
-        private static void MakeItemsFall()
+        private void MakeItemsFall()
         {
-            var columns = sameColoredCubes.Select(cube => cube.Position.y).Distinct();
+            var columnIndices = sameColoredCubes.Select(cube => cube.Position.y).Distinct();
 
-            foreach (var column in columns)
+            foreach (var columnIndex in columnIndices)
             {
-                for (int j = bottom + 1; j < maxSize; j++)
+                for (int j = bottom + 1; j < top + 1; j++)
                 {
-                    var itemsInColumn = itemsOnBoard.GetColumn(column);
+                    var itemsInColumn = itemsOnBoard.GetColumn(columnIndex);
                     
                     var item1 = itemsInColumn[j];
 
                     if (!item1)
                         continue;
-                    
+
                     for (int k = bottom; k < j; k++)
                     {
                         var item2 = itemsInColumn[k];
@@ -134,14 +137,84 @@ namespace Managers
                         UpdateItemPos(item1, k, item1.Position.y);
                         var emptyPos = gridManager.GetWorldPosition(k, item1.Position.y);
                         item1.MoveTo(emptyPos);
-                        
+
                         break;
+                    }
+                }
+                
+                //SpawnItemsToColumn(columnIndex, highestRow);
+            }
+        }
+
+        private void SpawnItemsToColumn(int columnIndex, int highestRow)
+        {
+            Utilities.Debug(columnIndex, highestRow, top);
+            
+            for (int i = highestRow + 1; i < top + 1; i++)
+            {
+                var finalPos = new Vector2Int(i, columnIndex);
+                
+                var rand = Random.value;
+
+                if (rand < m_probabilities.Cube)
+                {
+                    var cube = (Cube)itemSpawner.Spawn<Cube>(finalPos);
+                    var type = (CubeType)Random.Range(0, Cube.VarietySize);
+
+                    cube.SetType(type);
+                    cube.SetSprite(m_spriteContainer.GetSprite(SpriteType.Cube, type));
+                }
+                else if (rand < m_probabilities.Cube + m_probabilities.Balloon)
+                {
+                    var balloon = itemSpawner.Spawn<Balloon>(finalPos);
+                    balloon.SetSprite(m_spriteContainer.GetSprite(SpriteType.Balloon));
+                }
+                else
+                {
+                    var duck = itemSpawner.Spawn<Duck>(finalPos);
+                    duck.SetSprite(m_spriteContainer.GetSprite(SpriteType.Duck));
+                }
+            }
+        }
+        
+        private void SpawnNewItems()
+        {
+            var groups = sameColoredCubes.GroupBy(cube => cube.Position.y);
+            
+            foreach (var group in groups)
+            {
+                var count = group.Count();
+                var column = group.Key;
+
+                for (int i =  top - count + 1; i < top + 1; i++)
+                {
+                    var finalPos = new Vector2Int(i, column);
+                    
+                    var rand = Random.value;
+
+                    if (rand < m_probabilities.Cube)
+                    {
+                        var cube = (Cube)itemSpawner.Spawn<Cube>(finalPos);
+                        var type = (CubeType)Random.Range(0, Cube.VarietySize);
+
+                        cube.SetType(type);
+                        cube.SetSprite(m_spriteContainer.GetSprite(SpriteType.Cube, type));
+                    }
+                    else if (rand < m_probabilities.Cube + m_probabilities.Balloon)
+                    {
+                        var balloon = itemSpawner.Spawn<Balloon>(finalPos);
+                        balloon.SetSprite(m_spriteContainer.GetSprite(SpriteType.Balloon));
+                    }
+                    else
+                    {
+                        var duck = itemSpawner.Spawn<Duck>(finalPos);
+                        duck.SetSprite(m_spriteContainer.GetSprite(SpriteType.Duck));
                     }
                 }
             }
         }
         
-        private static void AddItemToBoard(Item item)
+        public void AddItemToBoard(Item item)
         {
             var pos = item.Position;
             itemsOnBoard[pos.x, pos.y] = item;
@@ -158,7 +231,7 @@ namespace Managers
             var oldPos = item.Position;
             itemsOnBoard[oldPos.x, oldPos.y] = null;
             
-            item.SetPositionAndSorting(x, y);
+            item.SetGridPositionAndSorting(new Vector2Int(x, y));
             itemsOnBoard[x, y] = item;
         }
         
@@ -183,20 +256,21 @@ namespace Managers
         
         private void FillItems(Vector2Int boardSize)
         {
-            itemsOnBoard = new Item[maxSize, maxSize];
+            itemsOnBoard = new Item[MaxSize, MaxSize];
             
             var range1 = Utilities.GetMidRange(boardSize.x);
             var range2 = Utilities.GetMidRange(boardSize.y);
 
             bottom = range1.Start;
+            top = range1.End;
             
-            for (int i = range1.Start; i < range1.End; i++)
+            for (int i = range1.Start; i < range1.End + 1; i++)
             {
-                for (int j = range2.Start; j < range2.End; j++)
+                for (int j = range2.Start; j < range2.End + 1; j++)
                 {
                     var cube = itemPooler.Get<Cube>();
                     
-                    int randInt = Random.Range(0, 5);
+                    int randInt = Random.Range(0, Cube.VarietySize);
                     var type = (CubeType)randInt;
 
                     var sprite = m_spriteContainer.GetSprite(SpriteType.Cube, type);
@@ -204,7 +278,7 @@ namespace Managers
                     cube.SetType(type);
                     cube.SetSprite(sprite);
                     
-                    cube.SetPositionAndSorting(i, j);
+                    cube.SetGridPositionAndSorting(new Vector2Int(i, j));
                     cube.transform.position = gridManager.GetWorldPosition(i, j);
 
                     itemsOnBoard[i, j] = cube;

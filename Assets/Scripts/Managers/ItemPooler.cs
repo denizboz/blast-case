@@ -2,22 +2,19 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Board;
-using Utility;
 
 namespace Managers
 {
     [DefaultExecutionOrder(-40)]
     public class ItemPooler : Manager
     {
-        [SerializeField] private SpriteContainer m_spriteContainer;
-
         [SerializeField] private Item[] m_cubes;
         [SerializeField] private Item[] m_ducks;
         [SerializeField] private Item[] m_balloons;
         
         [SerializeField] private Item[] m_rockets;
 
-        private static readonly Dictionary<Type, Queue<Item>> poolDictionary = new Dictionary<Type, Queue<Item>>(4);
+        private readonly Dictionary<Type, Queue<Item>> m_poolDictionary = new Dictionary<Type, Queue<Item>>(4);
 
         
         protected override void Awake()
@@ -34,7 +31,7 @@ namespace Managers
         public T Get<T>() where T : Item
         {
             var type = typeof(T);
-            var pool = poolDictionary[type];
+            var pool = m_poolDictionary[type];
 
             var item = (T)pool.Dequeue();
             item.gameObject.SetActive(true);
@@ -45,13 +42,13 @@ namespace Managers
         public void Return<T>(T item) where T : Item
         {
             var type = typeof(T);
-            var pool = poolDictionary[type];
+            var pool = m_poolDictionary[type];
             
             item.gameObject.SetActive(false);
             pool.Enqueue(item);
         }
         
-        private static void CreatePool<T>(Item[] items) where T : Item
+        private void CreatePool<T>(Item[] items) where T : Item
         {
             var pool = new Queue<Item>(items.Length);
 
@@ -62,7 +59,7 @@ namespace Managers
             }
 
             var type = typeof(T);
-            poolDictionary.Add(type, pool);
+            m_poolDictionary.Add(type, pool);
         }
     }
 }

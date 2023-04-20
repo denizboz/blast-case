@@ -50,3 +50,6 @@ TagManager:
   - name: Boosters
     uniqueID: 3920126531
     locked: 0
+  - name: UI
+    uniqueID: 2983550641
+    locked: 0

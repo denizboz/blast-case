@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace Utility
 {
@@ -17,7 +18,7 @@ namespace Utility
             
             var diff = maxSize - size;
             var start = diff / 2;
-            var end = maxSize - diff / 2 - 1 + size % 2;
+            var end = maxSize - diff / 2 - 2 + size % 2;
 
             return new IntRange(start, end);
         }
@@ -49,8 +50,38 @@ namespace Utility
 
             return row;
         }
+
+        public static Vector3 WithX(this Vector3 v, float x)
+        {
+            return new Vector3(x, v.y, v.z);
+        }
+        
+        public static Vector3 WithY(this Vector3 v, float y)
+        {
+            return new Vector3(v.x, y, v.z);
+        }
+        
+        public static Vector3 WithZ(this Vector3 v, float z)
+        {
+            return new Vector3(v.x, v.y, z);
+        }
+
+        public static void Debug(object obj1)
+        {
+            UnityEngine.Debug.Log(obj1.ToString());
+        }
+        public static void Debug(object obj1, object obj2)
+        {
+            UnityEngine.Debug.Log($"{obj1.ToString()} | {obj2.ToString()}");
+        }
+        
+        public static void Debug(object obj1, object obj2, object obj3)
+        {
+            UnityEngine.Debug.Log($"{obj1.ToString()} | {obj2.ToString()} | {obj3.ToString()}");
+        }
     }
 
+    
     /// <summary>
     /// Same as System.Range, but returns int values instead of Index.
     /// </summary>

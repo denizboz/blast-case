@@ -1,4 +1,5 @@
 using UnityEngine;
+using Utility;
 
 namespace Managers
 {
@@ -6,12 +7,14 @@ namespace Managers
     public class GridManager : Manager
     {
         private readonly Transform[,] m_gridPoints = new Transform[gridSize, gridSize];
-        
-        private const int gridSize = 9;
+
+        private const int gridSize = BoardManager.MaxSize;
         
         private const float boardWidth = 10.9f;
         private const float itemWidth = 1.19f;
         private const float borderThickness = 0.1f;
+
+        private const float spawnHeight = 10f;
 
         protected override void Awake()
         {
@@ -59,6 +62,16 @@ namespace Managers
         public Vector3 GetWorldPosition(int x, int y)
         {
             return m_gridPoints[x, y].position;
+        }
+
+        public Vector3 GetWorldPosition(Vector2Int gridPos)
+        {
+            return m_gridPoints[gridPos.x, gridPos.y].position;
+        }
+        
+        public Vector3 GetSpawnPosition(int column)
+        {
+            return m_gridPoints[0, column].position.WithY((spawnHeight));
         }
     }
 }
