@@ -75,32 +75,39 @@ namespace Managers
                 return;
             
             m_levelGoalsDictionary[goalType]--;
+            uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
             
             CheckForSuccess();
         }
 
         private static void OnBalloonDestroyed(Item balloon)
         {
-            if (!m_levelGoalsDictionary.ContainsKey(GoalType.Balloon))
+            var goalType = GoalType.Balloon;
+            
+            if (!m_levelGoalsDictionary.ContainsKey(goalType))
                 return;
             
-            if (m_levelGoalsDictionary[GoalType.Balloon] == 0)
+            if (m_levelGoalsDictionary[goalType] == 0)
                 return;
 
-            m_levelGoalsDictionary[GoalType.Balloon]--;
+            m_levelGoalsDictionary[goalType]--;
+            uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
             
             CheckForSuccess();
         }
 
         private static void OnDuckDestroyed(Item duck)
         {
-            if (!m_levelGoalsDictionary.ContainsKey(GoalType.Duck))
+            var goalType = GoalType.Duck;
+            
+            if (!m_levelGoalsDictionary.ContainsKey(goalType))
                 return;
             
-            if (m_levelGoalsDictionary[GoalType.Duck] == 0)
+            if (m_levelGoalsDictionary[goalType] == 0)
                 return;
 
-            m_levelGoalsDictionary[GoalType.Duck]--;
+            m_levelGoalsDictionary[goalType]--;
+            uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
             
             CheckForSuccess();
         }

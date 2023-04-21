@@ -1,3 +1,4 @@
+using Board;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,17 +8,25 @@ namespace UI
 {
     public class GoalUI : MonoBehaviour
     {
+        public GoalType Type;
+        
         [SerializeField] private RectTransform m_rectTransform;
         [SerializeField] private Image m_image;
         [SerializeField] private TextMeshProUGUI m_tmp;
 
-        private GoalType m_type;
-
+        public const float Width = 100f;
+        
         public void Set(GoalType type, Sprite sprite)
         {
-            m_type = type;
+            Type = type;
             m_image.sprite = sprite;
-            
+
+            if ((int)type < Cube.VarietySize)
+            {
+                var y = m_rectTransform.sizeDelta.y;
+                m_rectTransform.sizeDelta = m_rectTransform.sizeDelta.WithX(1f / 1.2f * y);
+            }
+
             gameObject.SetActive(true);
         }
 

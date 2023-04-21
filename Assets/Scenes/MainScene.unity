@@ -1976,7 +1976,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3166957228340987117, guid: 676459f8a35652046adb91f3c3a50357, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 100
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 3166957228340987117, guid: 676459f8a35652046adb91f3c3a50357, type: 3}
       propertyPath: m_SizeDelta.y
@@ -3658,7 +3658,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3166957228340987117, guid: 676459f8a35652046adb91f3c3a50357, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 100
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 3166957228340987117, guid: 676459f8a35652046adb91f3c3a50357, type: 3}
       propertyPath: m_SizeDelta.y
@@ -3967,8 +3967,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 92
-  m_fontSizeBase: 92
+  m_fontSize: 96
+  m_fontSizeBase: 96
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -14398,7 +14398,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3166957228340987117, guid: 676459f8a35652046adb91f3c3a50357, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 100
+      value: 120
       objectReference: {fileID: 0}
     - target: {fileID: 3166957228340987117, guid: 676459f8a35652046adb91f3c3a50357, type: 3}
       propertyPath: m_SizeDelta.y
