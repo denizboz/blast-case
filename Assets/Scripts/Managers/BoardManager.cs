@@ -25,6 +25,8 @@ namespace Managers
         private static ProbabilityData m_probabilities;
 
         private static int bottom, top;
+
+        public const int MinSize = 3;
         public const int MaxSize = 9;
         
         
@@ -74,6 +76,15 @@ namespace Managers
             if (sameColoredCubes.Count < 2)
                 return;
 
+            bool moreThanFive = sameColoredCubes.Count > 4;
+            
+            if (sameColoredCubes.Count > 4)
+            {
+                sameColoredCubes.Remove(tappedCube);
+                RemoveItemFromBoard(tappedCube);
+                itemPooler.Return(tappedCube);
+            }
+            
             foreach (var cube in sameColoredCubes)
             {
                 RemoveItemFromBoard(cube);
@@ -89,6 +100,9 @@ namespace Managers
                 
                 GameEvents.Invoke(BoardEvent.BalloonPopped, balloon);
             }
+            
+            if (moreThanFive)
+                CreateRocket(tappedCube.Position);
             
             MakeItemsFall();
             SpawnNewItems();
@@ -142,9 +156,15 @@ namespace Managers
             SpawnNewItemsAtColumn(column, 1);
         }
 
-        private void CreateRocket(Vector2Int gridPos)
+        private static void CreateRocket(Vector2Int gridPos)
         {
             var rocket = itemPooler.Get<Rocket>();
+            var worldPos = gridManager.GetWorldPosition(gridPos);
+            
+            rocket.SetGridPositionAndSorting(gridPos);
+            rocket.SetWorldPosition(worldPos);
+            
+            AddItemToBoard(rocket);
         }
         
         private static void MakeItemsFall()

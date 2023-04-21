@@ -16,8 +16,8 @@ MonoBehaviour:
   NumberOfMoves: 50
   Probabilities:
     Cube: 0.8
-    Balloon: 0.1
-    Duck: 0.1
+    Balloon: 0.14999999
+    Duck: 0.049999997
   Goals:
   - Type: 1
     Target: 25

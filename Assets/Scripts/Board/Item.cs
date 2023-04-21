@@ -13,12 +13,19 @@ namespace Board
         
         public void SetSprite(Sprite sprite)
         {
+            if (this is Booster)
+                return;
+            
             SRenderer.sprite = sprite;
         }
         
         public void SetGridPositionAndSorting(Vector2Int gridPosition)
         {
             Position = gridPosition;
+            
+            if (this is Booster)
+                return;
+            
             SRenderer.sortingOrder = gridPosition.x;
         }
 

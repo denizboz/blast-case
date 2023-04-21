@@ -1,4 +1,5 @@
 using System;
+using Managers;
 using UnityEngine;
 
 namespace Utility
@@ -8,7 +9,7 @@ namespace Utility
     [CreateAssetMenu(fileName = "Level_00", menuName = "New Level")]
     public class LevelSO : ScriptableObject
     {
-        public Vector2Int BoardSize = new Vector2Int(9, 9);
+        public Vector2Int BoardSize = new Vector2Int(BoardManager.MaxSize, BoardManager.MaxSize);
         public int NumberOfMoves = 50;
 
         public ProbabilityData Probabilities;
@@ -17,9 +18,18 @@ namespace Utility
 
         private void OnValidate()
         {
+            LimitBoardSize();
             NormalizeProbabilities();
         }
 
+        private void LimitBoardSize()
+        {
+            var x = Math.Clamp(BoardSize.x, BoardManager.MinSize, BoardManager.MaxSize);
+            var y = Math.Clamp(BoardSize.y, BoardManager.MinSize, BoardManager.MaxSize);
+
+            BoardSize = new Vector2Int(x, y);
+        }
+        
         private void NormalizeProbabilities()
         {
             Probabilities.Cube = Mathf.Clamp(Probabilities.Cube, 0f, 1f);
@@ -32,8 +42,8 @@ namespace Utility
                 return;
 
             var prob = 1f - Probabilities.Cube;
-            Probabilities.Duck = prob / 2f;
-            Probabilities.Balloon = prob / 2f;
+            Probabilities.Balloon = prob * 0.75f;
+            Probabilities.Duck = prob * 0.25f;
         }
     }
 

@@ -29,7 +29,7 @@ namespace Managers
             CreatePool<Duck>(m_ducks);
             CreatePool<Balloon>(m_balloons);
             
-            // CreatePool(m_rockets);
+            CreatePool<Rocket>(m_rockets);
         }
 
         public T Get<T>() where T : Item

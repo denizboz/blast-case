@@ -24,7 +24,7 @@ namespace Utility
             else if (type == typeof(Duck))
                 return m_duckSprite;
             else
-                return m_rocketSprite;
+                return null;
                 
         }
     }
