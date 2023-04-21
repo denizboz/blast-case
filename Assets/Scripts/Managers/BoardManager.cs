@@ -145,7 +145,7 @@ namespace Managers
             }
         }
 
-        private void DestroyDuck(Item duck)
+        private static void DestroyDuck(Item duck)
         {
             RemoveItemFromBoard(duck);
             itemPooler.Return(duck as Duck);
@@ -212,7 +212,7 @@ namespace Managers
             }
         }
         
-        private void SpawnNewItems()
+        private static void SpawnNewItems()
         {
             var groups = destroyedItems.GroupBy(item => item.Position.y);
             
@@ -225,7 +225,7 @@ namespace Managers
             }
         }
 
-        private void SpawnNewItemsAtColumn(int column, int count)
+        private static void SpawnNewItemsAtColumn(int column, int count)
         {
             for (int i =  top - count + 1; i < top + 1; i++)
             {

@@ -49,6 +49,13 @@ namespace Managers
                 
                 cube.SetType(cubeType);
             }
+            else if (item is Rocket rocket)
+            {
+                var rocketType = (RocketType)Random.Range(0, Rocket.VarietySize);
+                sprite = null;
+                
+                rocket.SetType(rocketType);
+            }
             else
             {
                 sprite = m_spriteContainer.GetSprite<T>();
