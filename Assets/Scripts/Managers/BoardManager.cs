@@ -132,6 +132,17 @@ namespace Managers
             }
         }
 
+        private void DestroyDuck(Item duck)
+        {
+            RemoveItemFromBoard(duck);
+            itemPooler.Return(duck as Duck);
+
+            var column = duck.Position.y;
+            
+            MakeItemsFallAtColumn(column);
+            SpawnNewItemsAtColumn(column, 1);
+        }
+        
         private static void MakeItemsFall()
         {
             destroyedItems = poppedBalloons.Count < 1
@@ -142,44 +153,15 @@ namespace Managers
 
             foreach (var columnIndex in columnIndices)
             {
-                for (int j = bottom + 1; j < top + 1; j++)
-                {
-                    var itemsInColumn = itemsOnBoard.GetColumn(columnIndex);
-                    
-                    var item1 = itemsInColumn[j];
-
-                    if (!item1)
-                        continue;
-
-                    for (int k = bottom; k < j; k++)
-                    {
-                        var item2 = itemsInColumn[k];
-
-                        if (item2)
-                            continue;
-
-                        UpdateItemPos(item1, k, item1.Position.y);
-                        var emptyPos = gridManager.GetWorldPosition(k, item1.Position.y);
-                        
-                        if (k == bottom)
-                            item1.MoveTo(emptyPos, isDuck: item1 is Duck);
-                        else
-                            item1.MoveTo(emptyPos);
-
-                        break;
-                    }
-                }
+                MakeItemsFallAtColumn(columnIndex);
             }
         }
 
-        private static void DestroyDuck(Item duck)
+        private static void MakeItemsFallAtColumn(int columnIndex)
         {
-            RemoveItemFromBoard(duck);
-            itemPooler.Return(duck as Duck);
-            
             for (int j = bottom + 1; j < top + 1; j++)
             {
-                var itemsInColumn = itemsOnBoard.GetColumn(duck.Position.y);
+                var itemsInColumn = itemsOnBoard.GetColumn(columnIndex);
                     
                 var item1 = itemsInColumn[j];
 
@@ -212,39 +194,44 @@ namespace Managers
             
             foreach (var group in groups)
             {
-                var count = group.Count();
                 var column = group.Key;
+                var count = group.Count();
 
-                for (int i =  top - count + 1; i < top + 1; i++)
-                {
-                    var finalPos = new Vector2Int(i, column);
+                SpawnNewItemsAtColumn(column, count);
+            }
+        }
+
+        private void SpawnNewItemsAtColumn(int column, int count)
+        {
+            for (int i =  top - count + 1; i < top + 1; i++)
+            {
+                var finalPos = new Vector2Int(i, column);
                     
-                    var randVal = Random.value;
+                var randVal = Random.value;
 
-                    if (randVal < m_probabilities.Cube)
-                    {
-                        var cube = (Cube)itemSpawner.Spawn<Cube>(finalPos);
-                        var type = (CubeType)Random.Range(0, Cube.VarietySize);
+                if (randVal < m_probabilities.Cube)
+                {
+                    var cube = (Cube)itemSpawner.Spawn<Cube>(finalPos);
+                    var type = (CubeType)Random.Range(0, Cube.VarietySize);
 
-                        cube.SetType(type);
-                        cube.SetSprite(m_spriteContainer.GetSprite(SpriteType.Cube, type));
+                    cube.SetType(type);
+                    cube.SetSprite(m_spriteContainer.GetSprite(SpriteType.Cube, type));
                         
-                        AddItemToBoard(cube);
-                    }
-                    else if (randVal < m_probabilities.Cube + m_probabilities.Balloon)
-                    {
-                        var balloon = itemSpawner.Spawn<Balloon>(finalPos);
-                        balloon.SetSprite(m_spriteContainer.GetSprite(SpriteType.Balloon));
+                    AddItemToBoard(cube);
+                }
+                else if (randVal < m_probabilities.Cube + m_probabilities.Balloon)
+                {
+                    var balloon = itemSpawner.Spawn<Balloon>(finalPos);
+                    balloon.SetSprite(m_spriteContainer.GetSprite(SpriteType.Balloon));
                         
-                        AddItemToBoard(balloon);
-                    }
-                    else
-                    {
-                        var duck = itemSpawner.Spawn<Duck>(finalPos);
-                        duck.SetSprite(m_spriteContainer.GetSprite(SpriteType.Duck));
+                    AddItemToBoard(balloon);
+                }
+                else
+                {
+                    var duck = itemSpawner.Spawn<Duck>(finalPos);
+                    duck.SetSprite(m_spriteContainer.GetSprite(SpriteType.Duck));
                         
-                        AddItemToBoard(duck);
-                    }
+                    AddItemToBoard(duck);
                 }
             }
         }
