@@ -68,9 +68,10 @@ namespace Managers
             return m_gridPoints[gridPos.x, gridPos.y].position;
         }
         
-        public Vector3 GetSpawnPosition(Vector2Int gridPos)
+        public Vector3 GetSpawnPosition(Vector2Int gridPos, bool wholeColumn = false)
         {
-            return GetWorldPosition(gridPos) + spawnHeight * Vector3.up;
+            var extraHeight = !wholeColumn ? 0f : spawnHeight;
+            return GetWorldPosition(gridPos) + (spawnHeight + extraHeight) * Vector3.up;
         }
     }
 }

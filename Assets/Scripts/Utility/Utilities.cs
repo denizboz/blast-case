@@ -51,6 +51,16 @@ namespace Utility
             return row;
         }
 
+        public static Vector2 WithX(this Vector2 v, float x)
+        {
+            return new Vector2(x, v.y);
+        }
+        
+        public static Vector2 WithY(this Vector2 v, float y)
+        {
+            return new Vector2(v.x, y);
+        }
+        
         public static Vector3 WithX(this Vector3 v, float x)
         {
             return new Vector3(x, v.y, v.z);
@@ -64,20 +74,6 @@ namespace Utility
         public static Vector3 WithZ(this Vector3 v, float z)
         {
             return new Vector3(v.x, v.y, z);
-        }
-
-        public static void Log(object obj1)
-        {
-            UnityEngine.Debug.Log(obj1.ToString());
-        }
-        public static void Log(object obj1, object obj2)
-        {
-            UnityEngine.Debug.Log($"{obj1.ToString()} | {obj2.ToString()}");
-        }
-        
-        public static void Log(object obj1, object obj2, object obj3)
-        {
-            UnityEngine.Debug.Log($"{obj1.ToString()} | {obj2.ToString()} | {obj3.ToString()}");
         }
     }
 

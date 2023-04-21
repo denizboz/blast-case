@@ -3,23 +3,23 @@ using Board;
 
 namespace Managers
 {
-    public enum CoreEvent { BoardLoaded, GameWon, GameLost }
-    public enum BoardEvent { ItemTapped, CubeDestroyed, BalloonPopped, DuckHitBottom }
+    public enum CoreEvent { BoardLoaded, MoveMade, GameWon, GameLost }
+    public enum BoardEvent { ItemTapped, CubeDestroyed, BalloonPopped, DuckHitBottom, BalloonDestroyed, DuckDestroyed }
     
     public static class GameEvents
     {
-        private static event Action boardLoaded, gameWon, gameLost;
-        private static event Action<Item> itemTapped, cubeDestroyed, balloonPopped, duckHitBottom;
+        private static event Action boardLoaded, moveMade, gameWon, gameLost;
+        private static event Action<Item> itemTapped, cubeDestroyed, balloonPopped, duckHitBottom, balloonDestroyed, duckDestroyed;
         
         
         private static readonly Action[] coreEvents = new Action[]
         {
-            boardLoaded, gameWon, gameLost
+            boardLoaded, moveMade, gameWon, gameLost
         };
 
         private static readonly Action<Item>[] boardEvents = new Action<Item>[]
         {
-            itemTapped, cubeDestroyed, balloonPopped, duckHitBottom
+            itemTapped, cubeDestroyed, balloonPopped, duckHitBottom, balloonDestroyed, duckDestroyed
         };
 
         

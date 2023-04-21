@@ -36,7 +36,7 @@ namespace Managers
             dependencyContainer.Bind<BoardManager>(this);
             
             GameEvents.AddListener(BoardEvent.ItemTapped, OnItemTap);
-            GameEvents.AddListener(BoardEvent.DuckHitBottom, DestroyDuck);
+            GameEvents.AddListener(BoardEvent.DuckHitBottom, OnDuckHitBottom);
         }
 
         private void Start()
@@ -65,6 +65,7 @@ namespace Managers
             {
                 OnRocketAction(rocket);
                 //rocket.StartAnimation();
+                GameEvents.Invoke(CoreEvent.MoveMade);
             }
         }
 
@@ -78,6 +79,8 @@ namespace Managers
             if (sameColoredCubes.Count < 2)
                 return;
 
+            GameEvents.Invoke(CoreEvent.MoveMade);
+            
             bool moreThanFive = sameColoredCubes.Count > 4;
             
             if (sameColoredCubes.Count > 4)
@@ -101,6 +104,7 @@ namespace Managers
                 itemPooler.Return(balloon);
                 
                 GameEvents.Invoke(BoardEvent.BalloonPopped, balloon);
+                GameEvents.Invoke(BoardEvent.BalloonDestroyed, balloon);
             }
             
             if (moreThanFive)
@@ -109,9 +113,11 @@ namespace Managers
             var destroyedItems = poppedBalloons.Count < 1
                 ? sameColoredCubes
                 : sameColoredCubes.Cast<Item>().Concat(poppedBalloons);
+
+            var enumerable = destroyedItems as Item[] ?? destroyedItems.ToArray();
             
-            MakeItemsFall(destroyedItems);
-            SpawnNewItems(destroyedItems);
+            MakeItemsFall(enumerable);
+            SpawnNewItems(enumerable);
         }
         
         private static void FindSameColoredNeighbours(Cube centerCube)
@@ -151,7 +157,7 @@ namespace Managers
             }
         }
 
-        private static void DestroyDuck(Item duck)
+        private static void OnDuckHitBottom(Item duck)
         {
             RemoveItemFromBoard(duck);
             itemPooler.Return(duck as Duck);
@@ -160,6 +166,8 @@ namespace Managers
             
             MakeItemsFallAtColumn(column);
             SpawnNewItemsAtColumn(column, 1);
+            
+            GameEvents.Invoke(BoardEvent.DuckDestroyed, duck);
         }
 
         private static void CreateRocket(Vector2Int gridPos)
@@ -186,11 +194,20 @@ namespace Managers
                 RemoveItemFromBoard(item);
                 
                 if (item is Cube cube)
+                {
                     itemPooler.Return(cube);
+                    GameEvents.Invoke(BoardEvent.CubeDestroyed, cube);
+                }
                 else if (item is Balloon balloon)
+                {
                     itemPooler.Return(balloon);
+                    GameEvents.Invoke(BoardEvent.BalloonDestroyed, balloon);
+                }
                 else if (item is Duck duck)
+                {
                     itemPooler.Return(duck);
+                    GameEvents.Invoke(BoardEvent.DuckDestroyed, duck);
+                }
                 else if (item is Rocket otherRocket)
                     itemPooler.Return(otherRocket);
             }
@@ -202,7 +219,7 @@ namespace Managers
             }
             else
             {
-                SpawnNewItemsAtColumn(origin.y, count: boardSize.x);
+                SpawnNewItemsAtColumn(origin.y, count: boardSize.x, wholeColumn: true);
             }
         }
         
@@ -260,7 +277,7 @@ namespace Managers
             }
         }
 
-        private static void SpawnNewItemsAtColumn(int column, int count)
+        private static void SpawnNewItemsAtColumn(int column, int count, bool wholeColumn = false)
         {
             for (int i =  top - count + 1; i < top + 1; i++)
             {
@@ -270,17 +287,17 @@ namespace Managers
 
                 if (randVal < m_probabilities.Cube)
                 {
-                    var cube = (Cube)itemSpawner.Spawn<Cube>(finalPos);
+                    var cube = (Cube)itemSpawner.Spawn<Cube>(finalPos, wholeColumn);
                     AddItemToBoard(cube);
                 }
                 else if (randVal < m_probabilities.Cube + m_probabilities.Balloon)
                 {
-                    var balloon = itemSpawner.Spawn<Balloon>(finalPos);
+                    var balloon = itemSpawner.Spawn<Balloon>(finalPos, wholeColumn);
                     AddItemToBoard(balloon);
                 }
                 else
                 {
-                    var duck = itemSpawner.Spawn<Duck>(finalPos);
+                    var duck = itemSpawner.Spawn<Duck>(finalPos, wholeColumn);
                     AddItemToBoard(duck);
                 }
             }
@@ -348,6 +365,8 @@ namespace Managers
                     itemsOnBoard[i, j] = cube;
                 }
             }
+            
+            GameEvents.Invoke(CoreEvent.BoardLoaded);
         }
     }
 }

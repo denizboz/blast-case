@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: Level_00
   m_EditorClassIdentifier: 
   BoardSize: {x: 9, y: 9}
-  NumberOfMoves: 50
+  NumberOfMoves: 8
   Probabilities:
     Cube: 0.8
     Balloon: 0.14999999
     Duck: 0.049999997
   Goals:
-  - Type: 1
+  - GoalType: 1
     Target: 25
-  - Type: 2
+  - GoalType: 2
     Target: 25
-  - Type: 5
-    Target: 15
+  - GoalType: 0
+    Target: 10

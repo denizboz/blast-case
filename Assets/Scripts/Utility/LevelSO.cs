@@ -1,11 +1,12 @@
 using System;
-using Managers;
 using UnityEngine;
+using Managers;
+using Board;
 
 namespace Utility
 {
     public enum GoalType { YellowCube, RedCube, BlueCube, GreenCube, PurpleCube, Balloon, Duck }
-
+    
     [CreateAssetMenu(fileName = "Level_00", menuName = "New Level")]
     public class LevelSO : ScriptableObject
     {
@@ -16,9 +17,12 @@ namespace Utility
         
         public Goal[] Goals;
 
+        public const int MaxNumberOfGoals = 3;
+
         private void OnValidate()
         {
             LimitBoardSize();
+            LimitGoals();
             NormalizeProbabilities();
         }
 
@@ -28,6 +32,19 @@ namespace Utility
             var y = Math.Clamp(BoardSize.y, BoardManager.MinSize, BoardManager.MaxSize);
 
             BoardSize = new Vector2Int(x, y);
+        }
+
+        private void LimitGoals()
+        {
+            if (Goals.Length <= MaxNumberOfGoals)
+                return;
+            
+            var goals = new Goal[MaxNumberOfGoals];
+            
+            for (var i = 0; i < goals.Length; i++)
+                goals[i] = Goals[i];
+
+            Goals = goals;
         }
         
         private void NormalizeProbabilities()
@@ -50,7 +67,7 @@ namespace Utility
     [Serializable]
     public struct Goal
     {
-        public GoalType Type;
+        public GoalType GoalType;
         public int Target;
     }
 

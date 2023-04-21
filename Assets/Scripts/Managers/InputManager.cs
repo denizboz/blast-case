@@ -17,6 +17,9 @@ namespace Managers
             Input.multiTouchEnabled = false;
 
             mainCam = Camera.main;
+            
+            GameEvents.AddListener(CoreEvent.GameWon, DisableInput);
+            GameEvents.AddListener(CoreEvent.GameLost, DisableInput);
         }
 
         private void Update()
@@ -38,9 +41,14 @@ namespace Managers
             }
         }
 
-        public void EnableInput(bool val)
+        public void EnableInput()
         {
-            m_isInputAllowed = val;
+            m_isInputAllowed = true;
+        }
+
+        public void DisableInput()
+        {
+            m_isInputAllowed = false;
         }
     }
 }

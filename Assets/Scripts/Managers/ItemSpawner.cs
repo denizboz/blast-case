@@ -19,9 +19,9 @@ namespace Managers
             m_gridManager = dependencyContainer.Resolve<GridManager>();
         }
 
-        public Item Spawn<T>(Vector2Int finalPosition) where T : Item
+        public Item Spawn<T>(Vector2Int finalPosition, bool wholeColumn) where T : Item
         {
-            var spawnPosWorld = m_gridManager.GetSpawnPosition(gridPos: finalPosition);
+            var spawnPosWorld = m_gridManager.GetSpawnPosition(gridPos: finalPosition, wholeColumn);
             var finalPosWorld = m_gridManager.GetWorldPosition(gridPos: finalPosition);
             
             var item = m_itemPooler.Get<T>();
