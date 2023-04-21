@@ -28,7 +28,10 @@ namespace Managers
             
             item.SetWorldPosition(spawnPosWorld);
             item.SetGridPositionAndSorting(finalPosition);
-            item.MoveTo(finalPosWorld);
+            
+            var isDuckAndGoingToBottom = typeof(T) == typeof(Duck) && finalPosition.x == BoardManager.Bottom;
+            
+            item.MoveTo(finalPosWorld, isDuck: isDuckAndGoingToBottom);
 
             return item;
         }

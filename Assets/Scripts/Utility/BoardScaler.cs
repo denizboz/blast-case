@@ -2,7 +2,6 @@ using UnityEngine;
 
 namespace Utility
 {
-    [DefaultExecutionOrder(-10)]
     public class BoardScaler : MonoBehaviour
     {
         private void Awake()

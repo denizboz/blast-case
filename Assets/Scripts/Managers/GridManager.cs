@@ -1,8 +1,8 @@
 using UnityEngine;
-using Utility;
 
 namespace Managers
 {
+    [DefaultExecutionOrder(-10)]
     public class GridManager : Manager
     {
         private readonly Transform[,] m_gridPoints = new Transform[gridSize, gridSize];

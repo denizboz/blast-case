@@ -19,13 +19,12 @@ namespace Managers
         private static ItemPooler itemPooler;
         private static GridManager gridManager;
         private static ItemSpawner itemSpawner;
-        private static InputManager inputManager;
 
         private static Vector2Int boardSize;
         
         private static ProbabilityData m_probabilities;
 
-        private static int bottom, top;
+        public static int Bottom, Top;
 
         public const int MinSize = 3;
         public const int MaxSize = 9;
@@ -44,7 +43,6 @@ namespace Managers
             itemPooler = dependencyContainer.Resolve<ItemPooler>();
             gridManager = dependencyContainer.Resolve<GridManager>();
             itemSpawner = dependencyContainer.Resolve<ItemSpawner>();
-            inputManager = dependencyContainer.Resolve<InputManager>();
             
             var gameManager = dependencyContainer.Resolve<GameManager>();
             boardSize = gameManager.GetCurrentBoardSize();
@@ -88,6 +86,8 @@ namespace Managers
                 sameColoredCubes.Remove(tappedCube);
                 RemoveItemFromBoard(tappedCube);
                 itemPooler.Return(tappedCube);
+                
+                GameEvents.Invoke(BoardEvent.CubeDestroyed, tappedCube);
             }
             
             foreach (var cube in sameColoredCubes)
@@ -191,6 +191,9 @@ namespace Managers
             
             foreach (var item in itemsToBeDestroyed)
             {
+                if (!item)
+                    continue;
+                
                 RemoveItemFromBoard(item);
                 
                 if (item is Cube cube)
@@ -225,6 +228,7 @@ namespace Managers
         
         private static void MakeItemsFall(IEnumerable<Item> destroyedItems)
         {
+            destroyedItems = destroyedItems.Where(item => item != null);
             var columnIndices = destroyedItems.Select(item => item.Position.y).Distinct();
 
             foreach (var columnIndex in columnIndices)
@@ -235,7 +239,7 @@ namespace Managers
 
         private static void MakeItemsFallAtColumn(int columnIndex)
         {
-            for (int j = bottom + 1; j < top + 1; j++)
+            for (int j = Bottom + 1; j < Top + 1; j++)
             {
                 var itemsInColumn = itemsOnBoard.GetColumn(columnIndex);
                     
@@ -244,7 +248,7 @@ namespace Managers
                 if (!item1)
                     continue;
 
-                for (int k = bottom; k < j; k++)
+                for (int k = Bottom; k < j; k++)
                 {
                     var item2 = itemsInColumn[k];
 
@@ -254,7 +258,7 @@ namespace Managers
                     UpdateItemPos(item1, k, item1.Position.y);
                     var emptyPos = gridManager.GetWorldPosition(k, item1.Position.y);
                         
-                    if (k == bottom)
+                    if (k == Bottom)
                         item1.MoveTo(emptyPos, isDuck: item1 is Duck);
                     else
                         item1.MoveTo(emptyPos);
@@ -266,6 +270,7 @@ namespace Managers
         
         private static void SpawnNewItems(IEnumerable<Item> destroyedItems)
         {
+            destroyedItems = destroyedItems.Where(item => item != null);
             var groups = destroyedItems.GroupBy(item => item.Position.y);
             
             foreach (var group in groups)
@@ -279,7 +284,7 @@ namespace Managers
 
         private static void SpawnNewItemsAtColumn(int column, int count, bool wholeColumn = false)
         {
-            for (int i =  top - count + 1; i < top + 1; i++)
+            for (int i =  Top - count + 1; i < Top + 1; i++)
             {
                 var finalPos = new Vector2Int(i, column);
                     
@@ -350,8 +355,8 @@ namespace Managers
             var range1 = Utilities.GetMidRange(boardSize.x);
             var range2 = Utilities.GetMidRange(boardSize.y);
 
-            bottom = range1.Start;
-            top = range1.End;
+            Bottom = range1.Start;
+            Top = range1.End;
             
             for (int i = range1.Start; i < range1.End + 1; i++)
             {

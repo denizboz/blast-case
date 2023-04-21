@@ -20,6 +20,6 @@ MonoBehaviour:
     Duck: 0.049999997
   Goals:
   - GoalType: 1
-    Target: 25
+    Target: 35
   - GoalType: 5
     Target: 15

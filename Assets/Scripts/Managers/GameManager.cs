@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Board;
 using UnityEngine;
 using Utility;
+using Board;
 
 namespace Managers
 {

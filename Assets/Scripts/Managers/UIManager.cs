@@ -2,6 +2,7 @@ using Board;
 using TMPro;
 using UI;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Utility;
 
 namespace Managers

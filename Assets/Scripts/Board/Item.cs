@@ -9,7 +9,7 @@ namespace Board
         public Vector2Int Position;
         public SpriteRenderer SRenderer;
 
-        private const float fallSpeed = 7f;
+        private const float fallSpeed = 9f;
         
         public void SetSprite(Sprite sprite)
         {
@@ -34,10 +34,10 @@ namespace Board
             transform.position = worldPos;
         }
         
-        public void MoveTo(Vector3 pos, float speed = fallSpeed, bool isDuck = false)
+        public void MoveTo(Vector3 pos, bool isDuck = false)
         {
             var distance = Vector3.Distance(transform.position, pos);
-            var duration = distance / speed;
+            var duration = distance / fallSpeed;
 
             if (!isDuck)
                 transform.DOMove(pos, duration).SetEase(Ease.InQuad);
