@@ -1,5 +1,6 @@
-using DG.Tweening;
 using UnityEngine;
+using DG.Tweening;
+using Managers;
 
 namespace Board
 {
@@ -26,12 +27,15 @@ namespace Board
             transform.position = worldPos;
         }
         
-        public void MoveTo(Vector3 pos, float speed = fallSpeed)
+        public void MoveTo(Vector3 pos, float speed = fallSpeed, bool isDuck = false)
         {
             var distance = Vector3.Distance(transform.position, pos);
             var duration = distance / speed;
-            
-            transform.DOMove(pos, duration).SetEase(Ease.InQuad);
+
+            if (!isDuck)
+                transform.DOMove(pos, duration).SetEase(Ease.InQuad);
+            else
+                transform.DOMove(pos, duration).SetEase(Ease.InQuad).OnComplete(() => GameEvents.Invoke(BoardEvent.DuckHitBottom, this));
         }
     }
 }

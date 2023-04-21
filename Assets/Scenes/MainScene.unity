@@ -5161,7 +5161,6 @@ MonoBehaviour:
   dependencyContainer: {fileID: 11400000, guid: b80fd01f3271e534199aa0764c8a6ce8, type: 2}
   m_spriteContainer: {fileID: 11400000, guid: 6ceda8937425401469f96ac03282ecee, type: 2}
   m_borders: {fileID: 797812304}
-  Yes: 1
 --- !u!4 &974410305
 Transform:
   m_ObjectHideFlags: 0

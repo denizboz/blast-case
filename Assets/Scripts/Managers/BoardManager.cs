@@ -3,7 +3,6 @@ using System.Linq;
 using Board;
 using Utility;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Managers
 {
@@ -35,6 +34,7 @@ namespace Managers
             dependencyContainer.Bind<BoardManager>(this);
             
             GameEvents.AddListener(BoardEvent.ItemTapped, OnItemTap);
+            GameEvents.AddListener(BoardEvent.DuckHitBottom, DestroyDuck);
         }
 
         private void Start()
@@ -75,8 +75,6 @@ namespace Managers
             if (sameColoredCubes.Count < 2)
                 return;
 
-            //inputManager.EnableInput(false);
-            
             foreach (var cube in sameColoredCubes)
             {
                 RemoveItemFromBoard(cube);
@@ -136,10 +134,10 @@ namespace Managers
 
         private static void MakeItemsFall()
         {
-            var cubes = sameColoredCubes.Cast<Item>();
-            var balloons = poppedBalloons.Cast<Item>();
-
-            destroyedItems = cubes.Concat(balloons);
+            destroyedItems = poppedBalloons.Count < 1
+                ? sameColoredCubes
+                : sameColoredCubes.Cast<Item>().Concat(poppedBalloons);
+            
             var columnIndices = destroyedItems.Select(item => item.Position.y).Distinct();
 
             foreach (var columnIndex in columnIndices)
@@ -162,7 +160,11 @@ namespace Managers
 
                         UpdateItemPos(item1, k, item1.Position.y);
                         var emptyPos = gridManager.GetWorldPosition(k, item1.Position.y);
-                        item1.MoveTo(emptyPos);
+                        
+                        if (k == bottom)
+                            item1.MoveTo(emptyPos, isDuck: item1 is Duck);
+                        else
+                            item1.MoveTo(emptyPos);
 
                         break;
                     }
@@ -170,6 +172,40 @@ namespace Managers
             }
         }
 
+        private static void DestroyDuck(Item duck)
+        {
+            RemoveItemFromBoard(duck);
+            itemPooler.Return(duck as Duck);
+            
+            for (int j = bottom + 1; j < top + 1; j++)
+            {
+                var itemsInColumn = itemsOnBoard.GetColumn(duck.Position.y);
+                    
+                var item1 = itemsInColumn[j];
+
+                if (!item1)
+                    continue;
+
+                for (int k = bottom; k < j; k++)
+                {
+                    var item2 = itemsInColumn[k];
+
+                    if (item2)
+                        continue;
+
+                    UpdateItemPos(item1, k, item1.Position.y);
+                    var emptyPos = gridManager.GetWorldPosition(k, item1.Position.y);
+                        
+                    if (k == bottom)
+                        item1.MoveTo(emptyPos, isDuck: item1 is Duck);
+                    else
+                        item1.MoveTo(emptyPos);
+
+                    break;
+                }
+            }
+        }
+        
         private void SpawnNewItems()
         {
             var groups = destroyedItems.GroupBy(item => item.Position.y);

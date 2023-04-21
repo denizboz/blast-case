@@ -38,7 +38,6 @@ namespace Managers
 
             return item;
         }
-
         public void Return<T>(T item) where T : Item
         {
             var type = typeof(T);
