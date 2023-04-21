@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
-using Board;
-using Utility;
 using UnityEngine;
+using Utility;
+using Board;
 
 namespace Managers
 {
@@ -15,12 +15,13 @@ namespace Managers
         
         private static List<Cube> sameColoredCubes;
         private static List<Balloon> poppedBalloons;
-        private static IEnumerable<Item> destroyedItems;
 
         private static ItemPooler itemPooler;
         private static GridManager gridManager;
         private static ItemSpawner itemSpawner;
         private static InputManager inputManager;
+
+        private static Vector2Int boardSize;
         
         private static ProbabilityData m_probabilities;
 
@@ -40,21 +41,21 @@ namespace Managers
 
         private void Start()
         {
-            var gameManager = dependencyContainer.Resolve<GameManager>();
-            var boardSize = gameManager.GetCurrentBoardSize();
-            
             itemPooler = dependencyContainer.Resolve<ItemPooler>();
             gridManager = dependencyContainer.Resolve<GridManager>();
             itemSpawner = dependencyContainer.Resolve<ItemSpawner>();
             inputManager = dependencyContainer.Resolve<InputManager>();
             
-            ResizeBorders(boardSize);
-            FillItems(boardSize);
+            var gameManager = dependencyContainer.Resolve<GameManager>();
+            boardSize = gameManager.GetCurrentBoardSize();
+            
+            FillItems();
+            ResizeBorders();
             
             SetFallProbabilities();
         }
 
-        private void OnItemTap<T>(T item) where T : Item
+        private static void OnItemTap<T>(T item) where T : Item
         {
             if (item is Cube cube)
             {
@@ -62,11 +63,12 @@ namespace Managers
             }
             else if (item is Rocket rocket)
             {
-                rocket.InitiateAction();
+                OnRocketAction(rocket);
+                //rocket.StartAnimation();
             }
         }
 
-        private void DestroyNeighbouringItems(Cube tappedCube)
+        private static void DestroyNeighbouringItems(Cube tappedCube)
         {
             sameColoredCubes = new List<Cube>();
             poppedBalloons = new List<Balloon>();
@@ -104,8 +106,12 @@ namespace Managers
             if (moreThanFive)
                 CreateRocket(tappedCube.Position);
             
-            MakeItemsFall();
-            SpawnNewItems();
+            var destroyedItems = poppedBalloons.Count < 1
+                ? sameColoredCubes
+                : sameColoredCubes.Cast<Item>().Concat(poppedBalloons);
+            
+            MakeItemsFall(destroyedItems);
+            SpawnNewItems(destroyedItems);
         }
         
         private static void FindSameColoredNeighbours(Cube centerCube)
@@ -167,12 +173,41 @@ namespace Managers
             AddItemToBoard(rocket);
         }
         
-        private static void MakeItemsFall()
+        private static void OnRocketAction(Rocket rocket)
         {
-            destroyedItems = poppedBalloons.Count < 1
-                ? sameColoredCubes
-                : sameColoredCubes.Cast<Item>().Concat(poppedBalloons);
+            var origin = rocket.Position;
+
+            var itemsToBeDestroyed = rocket.Type == RocketType.Horizontal
+                ? itemsOnBoard.GetRow(origin.x)
+                : itemsOnBoard.GetColumn(origin.y);
             
+            foreach (var item in itemsToBeDestroyed)
+            {
+                RemoveItemFromBoard(item);
+                
+                if (item is Cube cube)
+                    itemPooler.Return(cube);
+                else if (item is Balloon balloon)
+                    itemPooler.Return(balloon);
+                else if (item is Duck duck)
+                    itemPooler.Return(duck);
+                else if (item is Rocket otherRocket)
+                    itemPooler.Return(otherRocket);
+            }
+            
+            if (rocket.Type == RocketType.Horizontal)
+            {
+                MakeItemsFall(itemsToBeDestroyed);
+                SpawnNewItems(itemsToBeDestroyed);
+            }
+            else
+            {
+                SpawnNewItemsAtColumn(origin.y, count: boardSize.x);
+            }
+        }
+        
+        private static void MakeItemsFall(IEnumerable<Item> destroyedItems)
+        {
             var columnIndices = destroyedItems.Select(item => item.Position.y).Distinct();
 
             foreach (var columnIndex in columnIndices)
@@ -212,7 +247,7 @@ namespace Managers
             }
         }
         
-        private static void SpawnNewItems()
+        private static void SpawnNewItems(IEnumerable<Item> destroyedItems)
         {
             var groups = destroyedItems.GroupBy(item => item.Position.y);
             
@@ -278,7 +313,7 @@ namespace Managers
             m_probabilities = gameManager.GetItemProbabilities();
         }
         
-        private void ResizeBorders(Vector2Int boardSize)
+        private void ResizeBorders()
         {
             var size = m_borders.size;
 
@@ -291,7 +326,7 @@ namespace Managers
             m_borders.size = new Vector2(newX, newY);
         }
         
-        private static void FillItems(Vector2Int boardSize)
+        private static void FillItems()
         {
             itemsOnBoard = new Item[MaxSize, MaxSize];
             

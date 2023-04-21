@@ -31,9 +31,9 @@ namespace Managers
 
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                if (hit.transform.TryGetComponent(out Cube cube))
+                if (hit.transform.TryGetComponent(out Item item))
                 {
-                    GameEvents.Invoke(BoardEvent.ItemTapped, cube);
+                    GameEvents.Invoke(BoardEvent.ItemTapped, item);
                 }
             }
         }

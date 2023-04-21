@@ -27,7 +27,7 @@ namespace Managers
         {
             coreEvents[(int)coreEvent]?.Invoke();
         }
-        
+
         public static void Invoke(BoardEvent boardEvent, Item item)
         {
             boardEvents[(int)boardEvent]?.Invoke(item);
