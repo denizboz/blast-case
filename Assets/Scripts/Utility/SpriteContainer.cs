@@ -3,8 +3,6 @@ using UnityEngine;
 
 namespace Utility
 {
-    public enum SpriteType { Cube, Balloon, Duck, Rocket }
-
     [CreateAssetMenu(fileName = "SpriteContainer", menuName = "Sprite Container")]
     public class SpriteContainer : ScriptableObject
     {
@@ -14,16 +12,20 @@ namespace Utility
         
         [SerializeField] private Sprite[] m_cubeSprites;
 
-        public Sprite GetSprite(SpriteType spriteType, CubeType cubeType = CubeType.Yellow)
+        
+        public Sprite GetSprite<T>(CubeType cubeType = CubeType.Yellow) where T : Item
         {
-            if (spriteType == SpriteType.Cube)
+            var type = typeof(T);
+            
+            if (type == typeof(Cube))
                 return m_cubeSprites[(int)cubeType];
-            else if (spriteType == SpriteType.Balloon)
+            else if (type == typeof(Balloon))
                 return m_balloonSprite;
-            else if (spriteType == SpriteType.Duck)
+            else if (type == typeof(Duck))
                 return m_duckSprite;
             else
                 return m_rocketSprite;
+                
         }
     }
 }

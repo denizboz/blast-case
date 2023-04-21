@@ -10270,6 +10270,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dependencyContainer: {fileID: 11400000, guid: b80fd01f3271e534199aa0764c8a6ce8, type: 2}
+  m_spriteContainer: {fileID: 11400000, guid: 6ceda8937425401469f96ac03282ecee, type: 2}
   m_cubes:
   - {fileID: 1013101627}
   - {fileID: 1949507446}

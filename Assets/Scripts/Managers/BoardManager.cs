@@ -9,7 +9,6 @@ namespace Managers
     [DefaultExecutionOrder(-10)]
     public class BoardManager : Manager
     {
-        [SerializeField] private SpriteContainer m_spriteContainer;
         [SerializeField] private SpriteRenderer m_borders;
         
         private static Item[,] itemsOnBoard;
@@ -142,6 +141,11 @@ namespace Managers
             MakeItemsFallAtColumn(column);
             SpawnNewItemsAtColumn(column, 1);
         }
+
+        private void CreateRocket(Vector2Int gridPos)
+        {
+            var rocket = itemPooler.Get<Rocket>();
+        }
         
         private static void MakeItemsFall()
         {
@@ -212,25 +216,16 @@ namespace Managers
                 if (randVal < m_probabilities.Cube)
                 {
                     var cube = (Cube)itemSpawner.Spawn<Cube>(finalPos);
-                    var type = (CubeType)Random.Range(0, Cube.VarietySize);
-
-                    cube.SetType(type);
-                    cube.SetSprite(m_spriteContainer.GetSprite(SpriteType.Cube, type));
-                        
                     AddItemToBoard(cube);
                 }
                 else if (randVal < m_probabilities.Cube + m_probabilities.Balloon)
                 {
                     var balloon = itemSpawner.Spawn<Balloon>(finalPos);
-                    balloon.SetSprite(m_spriteContainer.GetSprite(SpriteType.Balloon));
-                        
                     AddItemToBoard(balloon);
                 }
                 else
                 {
                     var duck = itemSpawner.Spawn<Duck>(finalPos);
-                    duck.SetSprite(m_spriteContainer.GetSprite(SpriteType.Duck));
-                        
                     AddItemToBoard(duck);
                 }
             }
@@ -276,7 +271,7 @@ namespace Managers
             m_borders.size = new Vector2(newX, newY);
         }
         
-        private void FillItems(Vector2Int boardSize)
+        private static void FillItems(Vector2Int boardSize)
         {
             itemsOnBoard = new Item[MaxSize, MaxSize];
             
@@ -291,14 +286,6 @@ namespace Managers
                 for (int j = range2.Start; j < range2.End + 1; j++)
                 {
                     var cube = itemPooler.Get<Cube>();
-                    
-                    int randInt = Random.Range(0, Cube.VarietySize);
-                    var type = (CubeType)randInt;
-
-                    var sprite = m_spriteContainer.GetSprite(SpriteType.Cube, type);
-                    
-                    cube.SetType(type);
-                    cube.SetSprite(sprite);
                     
                     cube.SetGridPositionAndSorting(new Vector2Int(i, j));
                     cube.transform.position = gridManager.GetWorldPosition(i, j);

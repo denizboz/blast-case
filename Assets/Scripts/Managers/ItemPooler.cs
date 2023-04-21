@@ -2,12 +2,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Board;
+using Utility;
+using Random = UnityEngine.Random;
 
 namespace Managers
 {
     [DefaultExecutionOrder(-40)]
     public class ItemPooler : Manager
     {
+        [SerializeField] private SpriteContainer m_spriteContainer;
+        
         [SerializeField] private Item[] m_cubes;
         [SerializeField] private Item[] m_ducks;
         [SerializeField] private Item[] m_balloons;
@@ -36,14 +40,33 @@ namespace Managers
             var item = (T)pool.Dequeue();
             item.gameObject.SetActive(true);
 
+            Sprite sprite;
+            
+            if (item is Cube cube)
+            {
+                var cubeType = (CubeType)Random.Range(0, Cube.VarietySize);
+                sprite = m_spriteContainer.GetSprite<Cube>(cubeType);
+                
+                cube.SetType(cubeType);
+            }
+            else
+            {
+                sprite = m_spriteContainer.GetSprite<T>();
+            }
+
+            item.SetSprite(sprite);
+            
             return item;
         }
+        
         public void Return<T>(T item) where T : Item
         {
             var type = typeof(T);
             var pool = m_poolDictionary[type];
             
             item.gameObject.SetActive(false);
+            item.SetSprite(null);
+            
             pool.Enqueue(item);
         }
         
