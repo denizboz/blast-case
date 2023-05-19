@@ -1,5 +1,7 @@
 using UnityEngine;
 using Board;
+using Events;
+using Events.Implementations.BoardEvents;
 
 namespace Managers
 {
@@ -15,24 +17,24 @@ namespace Managers
         {
             dependencyContainer.Bind<AudioManager>(this);
             
-            GameEvents.AddListener(BoardEvent.CubeDestroyed, PlayCubeExplosion);
-            GameEvents.AddListener(BoardEvent.BalloonPopped, PlayBalloonPop);
-            GameEvents.AddListener(BoardEvent.DuckHitBottom, PlayDuckQuack);
+            GameEventSystem.AddListener<CubeDestroyedEvent>(PlayCubeExplosion);
+            GameEventSystem.AddListener<BalloonDestroyedEvent>(PlayBalloonPop);
+            GameEventSystem.AddListener<DuckHitBottomEvent>(PlayDuckQuack);
         }
 
-        private void PlayCubeExplosion(Item item)
+        private void PlayCubeExplosion(object obj)
         {
             m_source.clip = m_cubeExplodeSound;
             m_source.Play();
         }
 
-        private void PlayBalloonPop(Item item)
+        private void PlayBalloonPop(object obj)
         {
             m_source.clip = m_balloonPopSound;
             m_source.Play();
         }
         
-        private void PlayDuckQuack(Item item)
+        private void PlayDuckQuack(object obj)
         {
             m_source.clip = m_duckQuackSound;
             m_source.Play();

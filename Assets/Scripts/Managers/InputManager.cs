@@ -1,4 +1,8 @@
 using Board;
+using Events;
+using Events.Implementations;
+using Events.Implementations.CoreEvents;
+using Events.Implementations.InputEvents;
 using UnityEngine;
 
 namespace Managers
@@ -18,8 +22,8 @@ namespace Managers
 
             mainCam = Camera.main;
             
-            GameEvents.AddListener(CoreEvent.GameWon, DisableInput);
-            GameEvents.AddListener(CoreEvent.GameLost, DisableInput);
+            GameEventSystem.AddListener<GameWonEvent>(DisableInput);
+            GameEventSystem.AddListener<GameLostEvent>(DisableInput);
         }
 
         private void Update()
@@ -34,19 +38,19 @@ namespace Managers
 
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                if (hit.transform.TryGetComponent(out Item item))
+                if (hit.transform.TryGetComponent(out ITappable item))
                 {
-                    GameEvents.Invoke(BoardEvent.ItemTapped, item);
+                    GameEventSystem.Invoke<ItemTappedEvent>(item);
                 }
             }
         }
 
-        public void EnableInput()
+        public void EnableInput(Object obj)
         {
             m_isInputAllowed = true;
         }
 
-        public void DisableInput()
+        private void DisableInput(object obj)
         {
             m_isInputAllowed = false;
         }

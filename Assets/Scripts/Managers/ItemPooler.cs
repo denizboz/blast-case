@@ -18,7 +18,7 @@ namespace Managers
         
         [SerializeField] private Item[] m_rockets;
 
-        private readonly Dictionary<Type, Queue<Item>> m_poolDictionary = new Dictionary<Type, Queue<Item>>(4);
+        private static readonly Dictionary<Type, Queue<Item>> m_poolDictionary = new Dictionary<Type, Queue<Item>>(4);
 
         
         protected override void Awake()
@@ -66,7 +66,7 @@ namespace Managers
             return item;
         }
         
-        public void Return<T>(T item) where T : Item
+        public static void Return<T>(T item) where T : Item
         {
             var type = typeof(T);
             var pool = m_poolDictionary[type];
@@ -77,7 +77,7 @@ namespace Managers
             pool.Enqueue(item);
         }
         
-        private void CreatePool<T>(Item[] items) where T : Item
+        private static void CreatePool<T>(Item[] items) where T : Item
         {
             var pool = new Queue<Item>(items.Length);
 

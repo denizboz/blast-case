@@ -1,10 +1,21 @@
+using Events;
+using Events.Implementations.BoardEvents;
+using Managers;
+
 namespace Board
 {
     public class Balloon : Item
     {
-        public void Pop()
+        public override void GetDestroyed()
         {
-            // pop effect
+            ItemPooler.Return(this);
+            BoardManager.RemoveItemFromBoard(this);
+            GameEventSystem.Invoke<BalloonDestroyedEvent>(this);
+        }
+
+        public override void AddToChain()
+        {
+            BoardManager.AddToChainedItems(this);
         }
     }
 }
