@@ -5,17 +5,17 @@ namespace Events
 {
     public static class GameEventSystem
     {
-        private static readonly Dictionary<Type, Event> m_eventTypeDictionary = new();
+        private static readonly Dictionary<Type, Event> eventTypeDictionary = new();
 
-        public static void AddListener<T>(Action<object> action) where T : Event
+        public static void AddListener<T>(Action<object> action) where T : Event, new()
         {
             var type = typeof(T);
-            var hasType = m_eventTypeDictionary.TryGetValue(type, out Event evt);
+            var hasType = eventTypeDictionary.TryGetValue(type, out Event evt);
 
             if (!hasType)
             {
-                evt = Activator.CreateInstance<T>();
-                m_eventTypeDictionary.Add(type, evt);
+                evt = new T();
+                eventTypeDictionary.Add(type, evt);
             }
             
             evt.AddListener(action);
@@ -23,7 +23,7 @@ namespace Events
 
         public static void RemoveListener<T>(Action<object> action) where T : Event
         {
-            var hasType = m_eventTypeDictionary.TryGetValue(typeof(T), out Event evt);
+            var hasType = eventTypeDictionary.TryGetValue(typeof(T), out Event evt);
 
             if (!hasType) return;
 
@@ -33,7 +33,7 @@ namespace Events
         public static void Invoke<T>(object obj = null) where T : Event
         {
             var type = typeof(T);
-            var hasType = m_eventTypeDictionary.TryGetValue(type, out Event evt);
+            var hasType = eventTypeDictionary.TryGetValue(type, out Event evt);
 
             if (!hasType) return;
             
