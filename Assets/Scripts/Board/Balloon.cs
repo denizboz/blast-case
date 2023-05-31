@@ -1,11 +1,18 @@
 using Events;
 using Events.Implementations.BoardEvents;
 using Managers;
+using Utility;
 
 namespace Board
 {
     public class Balloon : Item
     {
+        public override void Setup(SpriteContainer container)
+        {
+            var sprite = container.GetSprite<Balloon>();
+            SetSprite(sprite);
+        }
+
         public override void GetDestroyed()
         {
             ItemPooler.Return(this);

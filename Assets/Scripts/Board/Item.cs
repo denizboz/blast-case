@@ -2,6 +2,7 @@ using UnityEngine;
 using DG.Tweening;
 using Events;
 using Events.Implementations.BoardEvents;
+using Utility;
 
 namespace Board
 {
@@ -12,6 +13,7 @@ namespace Board
 
         private const float fallSpeed = 9f;
 
+        public abstract void Setup(SpriteContainer container);
         public abstract void GetDestroyed();
         public abstract void AddToChain();
         

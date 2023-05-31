@@ -1,6 +1,8 @@
 using Events;
 using Events.Implementations.BoardEvents;
 using Managers;
+using UnityEngine;
+using Utility;
 
 namespace Board
 {
@@ -20,6 +22,14 @@ namespace Board
         public void OnTap()
         {
             BoardManager.DestroyNeighbouringItems(this);
+        }
+
+        public override void Setup(SpriteContainer container)
+        {
+            var cubeType = (CubeType)Random.Range(0, VarietySize);
+            var sprite = container.GetSprite<Cube>(cubeType);
+            SetSprite(sprite);
+            SetType(cubeType);
         }
 
         public override void GetDestroyed()

@@ -3,6 +3,7 @@ using Events;
 using Events.Implementations.CoreEvents;
 using Managers;
 using UnityEngine;
+using Utility;
 
 namespace Board
 {
@@ -40,6 +41,12 @@ namespace Board
         {
             BoardManager.OnRocketAction(this);
             GameEventSystem.Invoke<MoveMadeEvent>();
+        }
+
+        public override void Setup(SpriteContainer container)
+        {
+            var rocketType = (RocketType)Random.Range(0, VarietySize);
+            SetType(rocketType);
         }
 
         public override void GetDestroyed()

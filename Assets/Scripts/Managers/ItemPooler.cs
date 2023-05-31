@@ -40,29 +40,8 @@ namespace Managers
             var item = (T)pool.Dequeue();
             item.gameObject.SetActive(true);
 
-            Sprite sprite;
-            
-            if (item is Cube cube)
-            {
-                var cubeType = (CubeType)Random.Range(0, Cube.VarietySize);
-                sprite = m_spriteContainer.GetSprite<Cube>(cubeType);
-                
-                cube.SetType(cubeType);
-            }
-            else if (item is Rocket rocket)
-            {
-                var rocketType = (RocketType)Random.Range(0, Rocket.VarietySize);
-                sprite = null;
-                
-                rocket.SetType(rocketType);
-            }
-            else
-            {
-                sprite = m_spriteContainer.GetSprite<T>();
-            }
+            item.Setup(m_spriteContainer);
 
-            item.SetSprite(sprite);
-            
             return item;
         }
         
