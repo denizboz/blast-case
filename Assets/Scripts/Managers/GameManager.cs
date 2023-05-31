@@ -2,6 +2,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using Utility;
 using Board;
+using Events;
+using Events.Implementations.CoreEvents;
+using Events.Implementations.BoardEvents;
 
 namespace Managers
 {
@@ -21,11 +24,11 @@ namespace Managers
             dependencyContainer.Bind<GameManager>(this);
             Application.targetFrameRate = 60;
             
-            GameEvents.AddListener(BoardEvent.CubeDestroyed, OnCubeDestroyed);
-            GameEvents.AddListener(BoardEvent.BalloonDestroyed, OnBalloonDestroyed);
-            GameEvents.AddListener(BoardEvent.DuckDestroyed, OnDuckDestroyed);
+            GameEventSystem.AddListener<CubeDestroyedEvent>(OnCubeDestroyed);
+            GameEventSystem.AddListener<BalloonDestroyedEvent>(OnBalloonDestroyed);
+            GameEventSystem.AddListener<DuckDestroyedEvent>(OnDuckDestroyed);
             
-            GameEvents.AddListener(CoreEvent.MoveMade, UpdateMoveCount);
+            GameEventSystem.AddListener<MoveMadeEvent>(UpdateMoveCount);
             
             SetGoals();
         }
@@ -63,7 +66,7 @@ namespace Managers
             return m_currentLevel.Goals;
         }
 
-        private static void OnCubeDestroyed(Item cube)
+        private static void OnCubeDestroyed(object cube)
         {
             var cubeType = ((Cube)cube).Type;
             var goalType = (GoalType)cubeType;
@@ -80,7 +83,7 @@ namespace Managers
             CheckForSuccess();
         }
 
-        private static void OnBalloonDestroyed(Item balloon)
+        private static void OnBalloonDestroyed(object balloon)
         {
             var goalType = GoalType.Balloon;
             
@@ -96,7 +99,7 @@ namespace Managers
             CheckForSuccess();
         }
 
-        private static void OnDuckDestroyed(Item duck)
+        private static void OnDuckDestroyed(object duck)
         {
             var goalType = GoalType.Duck;
             
@@ -122,17 +125,17 @@ namespace Managers
             }
             
             if (isComplete)
-                GameEvents.Invoke(CoreEvent.GameWon);
+                GameEventSystem.Invoke<GameWonEvent>();
         }
 
-        private static void UpdateMoveCount()
+        private static void UpdateMoveCount(object obj)
         {
             moveCount--;
             
             uiManager.UpdateMoveCount(moveCount);
             
             if (moveCount < 1)
-                GameEvents.Invoke(CoreEvent.GameLost);
+                GameEventSystem.Invoke<GameLostEvent>();
         }
     }
 }

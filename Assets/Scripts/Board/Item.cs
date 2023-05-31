@@ -1,6 +1,8 @@
 using UnityEngine;
 using DG.Tweening;
-using Managers;
+using Events;
+using Events.Implementations.BoardEvents;
+using Utility;
 
 namespace Board
 {
@@ -10,6 +12,10 @@ namespace Board
         public SpriteRenderer SRenderer;
 
         private const float fallSpeed = 9f;
+
+        public abstract void Setup(SpriteContainer container);
+        public abstract void GetDestroyed();
+        public abstract void AddToChain();
         
         public void SetSprite(Sprite sprite)
         {
@@ -42,7 +48,8 @@ namespace Board
             if (!isDuck)
                 transform.DOMove(pos, duration).SetEase(Ease.InQuad);
             else
-                transform.DOMove(pos, duration).SetEase(Ease.InQuad).OnComplete(() => GameEvents.Invoke(BoardEvent.DuckHitBottom, this));
+                transform.DOMove(pos, duration).SetEase(Ease.InQuad).OnComplete(() => 
+                    GameEventSystem.Invoke<DuckHitBottomEvent>(this));
         }
     }
 }

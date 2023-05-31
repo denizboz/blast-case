@@ -3,6 +3,10 @@ using System.Linq;
 using UnityEngine;
 using Utility;
 using Board;
+using Events;
+using Events.Implementations.BoardEvents;
+using Events.Implementations.CoreEvents;
+using Events.Implementations.InputEvents;
 
 namespace Managers
 {
@@ -12,10 +16,12 @@ namespace Managers
         [SerializeField] private SpriteRenderer m_borders;
         
         private static Item[,] itemsOnBoard;
-        
-        private static List<Cube> sameColoredCubes;
-        private static List<Balloon> poppedBalloons;
 
+        private static List<Item> chainedItems;
+        private static int chainedCubeCount;
+
+        private static CubeType tappedCubeType;
+        
         private static ItemPooler itemPooler;
         private static GridManager gridManager;
         private static ItemSpawner itemSpawner;
@@ -34,8 +40,8 @@ namespace Managers
         {
             dependencyContainer.Bind<BoardManager>(this);
             
-            GameEvents.AddListener(BoardEvent.ItemTapped, OnItemTap);
-            GameEvents.AddListener(BoardEvent.DuckHitBottom, OnDuckHitBottom);
+            GameEventSystem.AddListener<ItemTappedEvent>(OnItemTap);
+            GameEventSystem.AddListener<DuckHitBottomEvent>(OnDuckHitBottom);
         }
 
         private void Start()
@@ -53,85 +59,55 @@ namespace Managers
             SetFallProbabilities();
         }
 
-        private static void OnItemTap<T>(T item) where T : Item
+        private static void OnItemTap(object item)
         {
-            if (item is Cube cube)
-            {
-                DestroyNeighbouringItems(cube);
-            }
-            else if (item is Rocket rocket)
-            {
-                OnRocketAction(rocket);
-                //rocket.StartAnimation();
-                GameEvents.Invoke(CoreEvent.MoveMade);
-            }
+            ((ITappable)item).OnTap();
         }
 
-        private static void DestroyNeighbouringItems(Cube tappedCube)
+        public static void DestroyNeighbouringItems(Cube tappedCube)
         {
-            sameColoredCubes = new List<Cube>();
-            poppedBalloons = new List<Balloon>();
+            tappedCubeType = tappedCube.Type;
+            
+            chainedItems = new List<Item>();
+            chainedCubeCount = 0;
             
             FindSameColoredNeighbours(tappedCube);
 
-            if (sameColoredCubes.Count < 2)
+            if (chainedCubeCount < 2)
                 return;
 
-            GameEvents.Invoke(CoreEvent.MoveMade);
+            GameEventSystem.Invoke<MoveMadeEvent>();
             
-            bool moreThanFive = sameColoredCubes.Count > 4;
-            
-            if (sameColoredCubes.Count > 4)
-            {
-                sameColoredCubes.Remove(tappedCube);
-                RemoveItemFromBoard(tappedCube);
-                itemPooler.Return(tappedCube);
-                
-                GameEvents.Invoke(BoardEvent.CubeDestroyed, tappedCube);
-            }
-            
-            foreach (var cube in sameColoredCubes)
-            {
-                RemoveItemFromBoard(cube);
-                itemPooler.Return(cube);
-                
-                GameEvents.Invoke(BoardEvent.CubeDestroyed, cube);
-            }
+            var moreThanFive = chainedCubeCount > 4;
 
-            foreach (var balloon in poppedBalloons)
-            {
-                RemoveItemFromBoard(balloon);
-                itemPooler.Return(balloon);
-                
-                GameEvents.Invoke(BoardEvent.BalloonPopped, balloon);
-                GameEvents.Invoke(BoardEvent.BalloonDestroyed, balloon);
-            }
-            
             if (moreThanFive)
+            {
+                tappedCube.GetDestroyed();
+                chainedItems.Remove(tappedCube);
                 CreateRocket(tappedCube.Position);
-            
-            var destroyedItems = poppedBalloons.Count < 1
-                ? sameColoredCubes
-                : sameColoredCubes.Cast<Item>().Concat(poppedBalloons);
+            }
 
-            var enumerable = destroyedItems as Item[] ?? destroyedItems.ToArray();
+            foreach (var item in chainedItems)
+            {
+                item.GetDestroyed();
+            }
             
-            MakeItemsFall(enumerable);
-            SpawnNewItems(enumerable);
+            MakeItemsFall(chainedItems);
+            SpawnNewItems(chainedItems);
         }
         
-        private static void FindSameColoredNeighbours(Cube centerCube)
+        private static void FindSameColoredNeighbours(Cube cube)
         {
-            if (sameColoredCubes.Contains(centerCube))
+            if (chainedItems.Contains(cube))
                 return;
             
-            sameColoredCubes.Add(centerCube);
+            chainedItems.Add(cube);
             
-            var posX = centerCube.Position.x;
-            var posY = centerCube.Position.y;
+            var posX = cube.Position.x;
+            var posY = cube.Position.y;
 
             const int n = MaxSize - 1;
-            var adjacentItems = new Item[4]
+            var adjacentItems = new Item[]
             {
                 posX != 0 ? itemsOnBoard[posX - 1, posY] : null,
                 posX != n ? itemsOnBoard[posX + 1, posY] : null,
@@ -141,33 +117,41 @@ namespace Managers
             
             foreach (var item in adjacentItems)
             {
-                if (item is Balloon balloon)
-                {
-                    if (!poppedBalloons.Contains(balloon))
-                        poppedBalloons.Add(balloon);
-
-                    continue;
-                }
-                
-                if (item is not Cube cube)
+                if (item == null)
                     continue;
                 
-                if (cube.Type == centerCube.Type)
-                    FindSameColoredNeighbours(cube);
+                item.AddToChain();
             }
         }
 
-        private static void OnDuckHitBottom(Item duck)
+        public static void AddToChainedItems(Cube cube)
         {
-            RemoveItemFromBoard(duck);
-            itemPooler.Return(duck as Duck);
+            if (cube.Type != tappedCubeType)
+                return;
+            
+            chainedCubeCount++;
+            FindSameColoredNeighbours(cube);
+        }
 
-            var column = duck.Position.y;
+        public static void AddToChainedItems(Balloon balloon)
+        {
+            if (!chainedItems.Contains(balloon))
+                chainedItems.Add(balloon);
+        }
+
+        private static void OnDuckHitBottom(object duck)
+        {
+            var hitDuck = (Duck)duck;
+            
+            RemoveItemFromBoard(hitDuck);
+            ItemPooler.Return(hitDuck);
+
+            var column = hitDuck.Position.y;
             
             MakeItemsFallAtColumn(column);
             SpawnNewItemsAtColumn(column, 1);
             
-            GameEvents.Invoke(BoardEvent.DuckDestroyed, duck);
+            GameEventSystem.Invoke<DuckDestroyedEvent>(duck);
         }
 
         private static void CreateRocket(Vector2Int gridPos)
@@ -181,7 +165,7 @@ namespace Managers
             AddItemToBoard(rocket);
         }
         
-        private static void OnRocketAction(Rocket rocket)
+        public static void OnRocketAction(Rocket rocket)
         {
             var origin = rocket.Position;
 
@@ -195,24 +179,7 @@ namespace Managers
                     continue;
                 
                 RemoveItemFromBoard(item);
-                
-                if (item is Cube cube)
-                {
-                    itemPooler.Return(cube);
-                    GameEvents.Invoke(BoardEvent.CubeDestroyed, cube);
-                }
-                else if (item is Balloon balloon)
-                {
-                    itemPooler.Return(balloon);
-                    GameEvents.Invoke(BoardEvent.BalloonDestroyed, balloon);
-                }
-                else if (item is Duck duck)
-                {
-                    itemPooler.Return(duck);
-                    GameEvents.Invoke(BoardEvent.DuckDestroyed, duck);
-                }
-                else if (item is Rocket otherRocket)
-                    itemPooler.Return(otherRocket);
+                item.GetDestroyed();
             }
             
             if (rocket.Type == RocketType.Horizontal)
@@ -314,7 +281,7 @@ namespace Managers
             itemsOnBoard[pos.x, pos.y] = item;
         }
 
-        private static void RemoveItemFromBoard(Item item)
+        public static void RemoveItemFromBoard(Item item)
         {
             var pos = item.Position;
             itemsOnBoard[pos.x, pos.y] = null;
@@ -371,7 +338,7 @@ namespace Managers
                 }
             }
             
-            GameEvents.Invoke(CoreEvent.BoardLoaded);
+            GameEventSystem.Invoke<BoardLoadedEvent>();
         }
     }
 }

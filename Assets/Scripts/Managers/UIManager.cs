@@ -1,4 +1,6 @@
 using Board;
+using Events;
+using Events.Implementations.CoreEvents;
 using TMPro;
 using UI;
 using UnityEngine;
@@ -21,9 +23,9 @@ namespace Managers
         {
             dependencyContainer.Bind<UIManager>(this);
             
-            GameEvents.AddListener(CoreEvent.BoardLoaded, LoadGoalUIs);
-            GameEvents.AddListener(CoreEvent.GameWon, ShowSuccessUI);
-            GameEvents.AddListener(CoreEvent.GameLost, ShowFailureUI);
+            GameEventSystem.AddListener<BoardLoadedEvent>(LoadGoalUIs);
+            GameEventSystem.AddListener<GameWonEvent>(ShowSuccessUI);
+            GameEventSystem.AddListener<GameLostEvent>(ShowFailureUI);
         }
 
         public void UpdateGoal(GoalType type, int count)
@@ -40,7 +42,7 @@ namespace Managers
             m_moveCountUI.text = count.ToString();
         }
         
-        private void LoadGoalUIs()
+        private void LoadGoalUIs(object obj)
         {
             var gameManager = dependencyContainer.Resolve<GameManager>();
             
@@ -95,12 +97,12 @@ namespace Managers
             }
         }
 
-        private void ShowSuccessUI()
+        private void ShowSuccessUI(object obj)
         {
             m_successPanel.SetActive(true);
         }
 
-        private void ShowFailureUI()
+        private void ShowFailureUI(object obj)
         {
             m_failurePanel.SetActive(true);
         }

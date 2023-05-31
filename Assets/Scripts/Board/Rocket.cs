@@ -1,11 +1,15 @@
 using DG.Tweening;
+using Events;
+using Events.Implementations.CoreEvents;
+using Managers;
 using UnityEngine;
+using Utility;
 
 namespace Board
 {
     public enum RocketType { Horizontal, Vertical }
     
-    public class Rocket : Booster
+    public class Rocket : Booster, ITappable
     {
         public RocketType Type;
         
@@ -31,6 +35,27 @@ namespace Board
             
             m_leftOrUp.localPosition = halfOffset * Vector3.left;
             m_rightOrDown.localPosition = halfOffset * Vector3.right;
+        }
+
+        public void OnTap()
+        {
+            BoardManager.OnRocketAction(this);
+            GameEventSystem.Invoke<MoveMadeEvent>();
+        }
+
+        public override void Setup(SpriteContainer container)
+        {
+            var rocketType = (RocketType)Random.Range(0, VarietySize);
+            SetType(rocketType);
+        }
+
+        public override void GetDestroyed()
+        {
+            ItemPooler.Return(this);
+        }
+
+        public override void AddToChain()
+        {
         }
     }
 }

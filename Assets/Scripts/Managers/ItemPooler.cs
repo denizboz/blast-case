@@ -18,7 +18,7 @@ namespace Managers
         
         [SerializeField] private Item[] m_rockets;
 
-        private readonly Dictionary<Type, Queue<Item>> m_poolDictionary = new Dictionary<Type, Queue<Item>>(4);
+        private static readonly Dictionary<Type, Queue<Item>> m_poolDictionary = new Dictionary<Type, Queue<Item>>(4);
 
         
         protected override void Awake()
@@ -40,33 +40,12 @@ namespace Managers
             var item = (T)pool.Dequeue();
             item.gameObject.SetActive(true);
 
-            Sprite sprite;
-            
-            if (item is Cube cube)
-            {
-                var cubeType = (CubeType)Random.Range(0, Cube.VarietySize);
-                sprite = m_spriteContainer.GetSprite<Cube>(cubeType);
-                
-                cube.SetType(cubeType);
-            }
-            else if (item is Rocket rocket)
-            {
-                var rocketType = (RocketType)Random.Range(0, Rocket.VarietySize);
-                sprite = null;
-                
-                rocket.SetType(rocketType);
-            }
-            else
-            {
-                sprite = m_spriteContainer.GetSprite<T>();
-            }
+            item.Setup(m_spriteContainer);
 
-            item.SetSprite(sprite);
-            
             return item;
         }
         
-        public void Return<T>(T item) where T : Item
+        public static void Return<T>(T item) where T : Item
         {
             var type = typeof(T);
             var pool = m_poolDictionary[type];
@@ -77,7 +56,7 @@ namespace Managers
             pool.Enqueue(item);
         }
         
-        private void CreatePool<T>(Item[] items) where T : Item
+        private static void CreatePool<T>(Item[] items) where T : Item
         {
             var pool = new Queue<Item>(items.Length);
 

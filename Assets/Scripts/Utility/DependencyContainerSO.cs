@@ -13,11 +13,7 @@ namespace Utility
         public void Bind<T>(T obj) where T : Manager
         {
             var type = typeof(T);
-
-            if (m_systemsDictionary.ContainsKey(type))
-                m_systemsDictionary[type] = obj;
-            else
-                m_systemsDictionary.Add(type, obj);
+            m_systemsDictionary[type] = obj;
         }
 
         public T Resolve<T>() where T : Manager

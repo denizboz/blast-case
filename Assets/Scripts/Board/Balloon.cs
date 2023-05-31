@@ -1,10 +1,28 @@
+using Events;
+using Events.Implementations.BoardEvents;
+using Managers;
+using Utility;
+
 namespace Board
 {
     public class Balloon : Item
     {
-        public void Pop()
+        public override void Setup(SpriteContainer container)
         {
-            // pop effect
+            var sprite = container.GetSprite<Balloon>();
+            SetSprite(sprite);
+        }
+
+        public override void GetDestroyed()
+        {
+            ItemPooler.Return(this);
+            BoardManager.RemoveItemFromBoard(this);
+            GameEventSystem.Invoke<BalloonDestroyedEvent>(this);
+        }
+
+        public override void AddToChain()
+        {
+            BoardManager.AddToChainedItems(this);
         }
     }
 }
