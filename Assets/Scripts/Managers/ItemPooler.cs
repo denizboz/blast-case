@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Board;
 using Utility;
-using Random = UnityEngine.Random;
 
 namespace Managers
 {
