@@ -78,7 +78,7 @@ namespace Managers
 
             GameEventSystem.Invoke<MoveMadeEvent>();
             
-            var moreThanFive = chainedCubeCount > 4;
+            var moreThanFive = chainedCubeCount > 6; // TODO: FIX THIS!! Must be > 4
 
             if (moreThanFive)
             {

@@ -10,6 +10,8 @@ namespace Managers
     public class ItemPooler : Manager
     {
         [SerializeField] private SpriteContainer m_spriteContainer;
+
+        [SerializeField] private GameObject m_allItems;
         
         [SerializeField] private Item[] m_cubes;
         [SerializeField] private Item[] m_ducks;
@@ -17,18 +19,14 @@ namespace Managers
         
         [SerializeField] private Item[] m_rockets;
 
-        private static readonly Dictionary<Type, Queue<Item>> m_poolDictionary = new Dictionary<Type, Queue<Item>>(4);
+        private static readonly Dictionary<Type, Queue<Item>> m_poolDictionary = new Dictionary<Type, Queue<Item>>(16);
 
         
         protected override void Awake()
         {
             dependencyContainer.Bind<ItemPooler>(this);
             
-            CreatePool<Cube>(m_cubes);
-            CreatePool<Duck>(m_ducks);
-            CreatePool<Balloon>(m_balloons);
-            
-            CreatePool<Rocket>(m_rockets);
+            CreatePools();
         }
 
         public T Get<T>() where T : Item
@@ -55,18 +53,20 @@ namespace Managers
             pool.Enqueue(item);
         }
         
-        private static void CreatePool<T>(Item[] items) where T : Item
+        private void CreatePools()
         {
-            var pool = new Queue<Item>(items.Length);
+            var items = m_allItems.GetComponentsInChildren<Item>();
 
             foreach (var item in items)
             {
-                item.gameObject.SetActive(false);
-                pool.Enqueue(item);
-            }
+                var type = item.GetType();
 
-            var type = typeof(T);
-            m_poolDictionary.Add(type, pool);
+                if (!m_poolDictionary.ContainsKey(type))
+                    m_poolDictionary.Add(type, new Queue<Item>());
+                
+                item.gameObject.SetActive(false);
+                m_poolDictionary[type].Enqueue(item);
+            }
         }
     }
 }
