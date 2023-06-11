@@ -10,15 +10,8 @@ namespace Managers
     public class ItemPooler : Manager
     {
         [SerializeField] private SpriteContainer m_spriteContainer;
-
         [SerializeField] private GameObject m_allItems;
         
-        [SerializeField] private Item[] m_cubes;
-        [SerializeField] private Item[] m_ducks;
-        [SerializeField] private Item[] m_balloons;
-        
-        [SerializeField] private Item[] m_rockets;
-
         private static readonly Dictionary<Type, Queue<Item>> m_poolDictionary = new Dictionary<Type, Queue<Item>>(16);
 
         
