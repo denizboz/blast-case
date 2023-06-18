@@ -4,9 +4,9 @@ using UnityEngine;
 using Utility;
 using Board;
 using Events;
-using Events.Implementations.BoardEvents;
-using Events.Implementations.CoreEvents;
-using Events.Implementations.InputEvents;
+using Events.Implementations.Board;
+using Events.Implementations.Core;
+using Events.Implementations.Input;
 
 namespace Managers
 {

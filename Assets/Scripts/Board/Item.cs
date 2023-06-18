@@ -1,7 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using Events;
-using Events.Implementations.BoardEvents;
+using Events.Implementations.Board;
 using Utility;
 
 namespace Board

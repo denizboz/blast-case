@@ -3,8 +3,8 @@ using UnityEngine;
 using Utility;
 using Board;
 using Events;
-using Events.Implementations.CoreEvents;
-using Events.Implementations.BoardEvents;
+using Events.Implementations.Board;
+using Events.Implementations.Core;
 
 namespace Managers
 {

@@ -1,5 +1,5 @@
 using Events;
-using Events.Implementations.BoardEvents;
+using Events.Implementations.Board;
 using Managers;
 using UnityEngine;
 using Utility;

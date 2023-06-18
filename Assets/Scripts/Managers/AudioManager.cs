@@ -1,7 +1,7 @@
 using UnityEngine;
 using Board;
 using Events;
-using Events.Implementations.BoardEvents;
+using Events.Implementations.Board;
 
 namespace Managers
 {

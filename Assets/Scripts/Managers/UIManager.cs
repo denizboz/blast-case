@@ -1,6 +1,6 @@
 using Board;
 using Events;
-using Events.Implementations.CoreEvents;
+using Events.Implementations.Core;
 using TMPro;
 using UI;
 using UnityEngine;

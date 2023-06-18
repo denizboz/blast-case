@@ -1,8 +1,8 @@
 using Board;
 using Events;
 using Events.Implementations;
-using Events.Implementations.CoreEvents;
-using Events.Implementations.InputEvents;
+using Events.Implementations.Core;
+using Events.Implementations.Input;
 using UnityEngine;
 
 namespace Managers

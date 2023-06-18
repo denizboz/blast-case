@@ -1,4 +1,4 @@
-namespace Events.Implementations.CoreEvents
+namespace Events.Implementations.Core
 {
     public class GameWonEvent : Event
     {

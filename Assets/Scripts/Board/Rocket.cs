@@ -1,6 +1,6 @@
 using DG.Tweening;
 using Events;
-using Events.Implementations.CoreEvents;
+using Events.Implementations.Core;
 using Managers;
 using UnityEngine;
 using Utility;
