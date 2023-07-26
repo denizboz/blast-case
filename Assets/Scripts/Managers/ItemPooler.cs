@@ -2,24 +2,30 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Board;
-using Utility;
+using CommonTools.Runtime.DependencyInjection;
+using Events;
+using Events.Implementations;
+using Utilities;
 
 namespace Managers
 {
-    [DefaultExecutionOrder(-40)]
-    public class ItemPooler : Manager
+    public class ItemPooler : MonoBehaviour, IDependency
     {
         [SerializeField] private SpriteContainer m_spriteContainer;
         [SerializeField] private GameObject m_allItems;
         
-        private static readonly Dictionary<Type, Queue<Item>> m_poolDictionary = new Dictionary<Type, Queue<Item>>(16);
+        private readonly Dictionary<Type, Queue<Item>> m_poolDictionary = new Dictionary<Type, Queue<Item>>(16);
 
         
-        protected override void Awake()
+        public void Bind()
         {
-            dependencyContainer.Bind<ItemPooler>(this);
-            
+            DI.Bind(this);
+        }
+        
+        private void Awake()
+        {
             CreatePools();
+            GameEventSystem.AddListener<ItemDestroyedEvent>(Return);
         }
 
         public T Get<T>() where T : Item
@@ -35,9 +41,10 @@ namespace Managers
             return item;
         }
         
-        public static void Return<T>(T item) where T : Item
+        private void Return(object returnedItem)
         {
-            var type = typeof(T);
+            var item = (Item)returnedItem;
+            var type = item.GetType();
             var pool = m_poolDictionary[type];
             
             item.gameObject.SetActive(false);

@@ -1,15 +1,15 @@
 using Board;
+using CommonTools.Runtime.DependencyInjection;
 using Events;
-using Events.Implementations.Core;
+using Events.Implementations;
 using TMPro;
 using UI;
 using UnityEngine;
-using UnityEngine.Serialization;
-using Utility;
+using Utilities;
 
 namespace Managers
 {
-    public class UIManager : Manager
+    public class UIManager : MonoBehaviour, IDependency
     {
         [SerializeField] private SpriteContainer m_spriteContainer;
         [SerializeField] private TextMeshProUGUI m_moveCountUI;
@@ -19,10 +19,13 @@ namespace Managers
         [SerializeField] private GoalUI[] m_goalFields;
         
         
-        protected override void Awake()
+        public void Bind()
         {
-            dependencyContainer.Bind<UIManager>(this);
-            
+            DI.Bind(this);
+        }
+        
+        private void Awake()
+        {
             GameEventSystem.AddListener<BoardLoadedEvent>(LoadGoalUIs);
             GameEventSystem.AddListener<GameWonEvent>(ShowSuccessUI);
             GameEventSystem.AddListener<GameLostEvent>(ShowFailureUI);
@@ -44,7 +47,7 @@ namespace Managers
         
         private void LoadGoalUIs(object obj)
         {
-            var gameManager = dependencyContainer.Resolve<GameManager>();
+            var gameManager = DI.Resolve<GameManager>();
             
             var goals = gameManager.GetGoals();
 

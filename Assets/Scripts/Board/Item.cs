@@ -1,8 +1,8 @@
 using UnityEngine;
 using DG.Tweening;
 using Events;
-using Events.Implementations.Board;
-using Utility;
+using Events.Implementations;
+using Utilities;
 
 namespace Board
 {
@@ -14,12 +14,24 @@ namespace Board
         private const float fallSpeed = 9f;
 
         public abstract void Setup(SpriteContainer container);
-        public abstract void GetDestroyed();
-        public abstract void AddToChain();
+
+        public virtual void OnTap() { }
+
+        public virtual bool IsChainable(CubeType cubeType)
+        {
+            return false;
+        }
+        
+        public virtual void AddToItemChain() { }
+        
+        public virtual void GetDestroyed()
+        {
+            GameEventSystem.Invoke<ItemDestroyedEvent>(this);
+        }
         
         public void SetSprite(Sprite sprite)
         {
-            if (this is Booster)
+            if (SRenderer == null)
                 return;
             
             SRenderer.sprite = sprite;
@@ -40,16 +52,14 @@ namespace Board
             transform.position = worldPos;
         }
         
-        public void MoveTo(Vector3 pos, bool isDuck = false)
+        public void MoveTo(Vector3 pos, bool toBottom)
         {
             var distance = Vector3.Distance(transform.position, pos);
             var duration = distance / fallSpeed;
-
-            if (!isDuck)
-                transform.DOMove(pos, duration).SetEase(Ease.InQuad);
-            else
-                transform.DOMove(pos, duration).SetEase(Ease.InQuad).OnComplete(() => 
-                    GameEventSystem.Invoke<DuckHitBottomEvent>(this));
+            
+            transform.DOMove(pos, duration).SetEase(Ease.InQuad).OnComplete(() => OnFallComplete(toBottom));
         }
+        
+        protected virtual void OnFallComplete(bool hitBottom) { }
     }
 }

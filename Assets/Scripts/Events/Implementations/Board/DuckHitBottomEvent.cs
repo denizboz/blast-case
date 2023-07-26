@@ -1,4 +1,4 @@
-namespace Events.Implementations.Board
+namespace Events.Implementations
 {
     public class DuckHitBottomEvent : Event
     {

@@ -1,4 +1,4 @@
-namespace Events.Implementations.Core
+namespace Events.Implementations
 {
     public class BoardLoadedEvent : Event
     {

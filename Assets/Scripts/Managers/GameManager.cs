@@ -1,42 +1,42 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Utility;
 using Board;
+using CommonTools.Runtime.DependencyInjection;
 using Events;
-using Events.Implementations.Board;
-using Events.Implementations.Core;
+using Events.Implementations;
+using Utilities;
 
 namespace Managers
 {
-    [DefaultExecutionOrder(-100)]
-    public class GameManager : Manager
+    public class GameManager : MonoBehaviour, IDependency
     {
         [SerializeField] private LevelSO m_currentLevel;
 
-        private static UIManager uiManager;
+        private UIManager m_uiManager;
         
-        private static readonly Dictionary<GoalType, int> m_levelGoalsDictionary = new Dictionary<GoalType, int>();
+        private readonly Dictionary<GoalType, int> m_levelGoalsDictionary = new Dictionary<GoalType, int>();
 
-        private static int moveCount;
+        private int m_moveCount;
 
-        protected override void Awake()
+        public void Bind()
         {
-            dependencyContainer.Bind<GameManager>(this);
+            DI.Bind(this);
+        }
+
+        private void Awake()
+        {
             Application.targetFrameRate = 60;
-            
-            GameEventSystem.AddListener<CubeDestroyedEvent>(OnCubeDestroyed);
-            GameEventSystem.AddListener<BalloonDestroyedEvent>(OnBalloonDestroyed);
-            GameEventSystem.AddListener<DuckDestroyedEvent>(OnDuckDestroyed);
+            m_uiManager = DI.Resolve<UIManager>();
             
             GameEventSystem.AddListener<MoveMadeEvent>(UpdateMoveCount);
+            GameEventSystem.AddListener<ItemDestroyedEvent>(OnItemDestroyed);
             
             SetGoals();
         }
 
         private void Start()
         {
-            uiManager = dependencyContainer.Resolve<UIManager>();
-            uiManager.UpdateMoveCount(moveCount);
+            m_uiManager.UpdateMoveCount(m_moveCount);
         }
 
         private void SetGoals()
@@ -48,7 +48,7 @@ namespace Managers
                 m_levelGoalsDictionary.Add(goals[i].GoalType, goals[i].Target);
             }
 
-            moveCount = m_currentLevel.NumberOfMoves;
+            m_moveCount = m_currentLevel.NumberOfMoves;
         }
 
         public Vector2Int GetCurrentBoardSize()
@@ -66,9 +66,25 @@ namespace Managers
             return m_currentLevel.Goals;
         }
 
-        private static void OnCubeDestroyed(object cube)
+        private void OnItemDestroyed(object item)
         {
-            var cubeType = ((Cube)cube).Type;
+            switch (item)
+            {
+                case Cube cube:
+                    OnCubeDestroyed(cube);
+                    break;
+                case Balloon balloon:
+                    OnBalloonDestroyed(balloon);
+                    break;
+                case Duck duck:
+                    OnDuckDestroyed(duck);
+                    break;
+            }
+        }
+        
+        private void OnCubeDestroyed(Cube cube)
+        {
+            var cubeType = cube.Type;
             var goalType = (GoalType)cubeType;
 
             if (!m_levelGoalsDictionary.ContainsKey(goalType))
@@ -78,12 +94,12 @@ namespace Managers
                 return;
             
             m_levelGoalsDictionary[goalType]--;
-            uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
+            m_uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
             
             CheckForSuccess();
         }
 
-        private static void OnBalloonDestroyed(object balloon)
+        private void OnBalloonDestroyed(Balloon balloon)
         {
             var goalType = GoalType.Balloon;
             
@@ -94,12 +110,12 @@ namespace Managers
                 return;
 
             m_levelGoalsDictionary[goalType]--;
-            uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
+            m_uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
             
             CheckForSuccess();
         }
 
-        private static void OnDuckDestroyed(object duck)
+        private void OnDuckDestroyed(Duck duck)
         {
             var goalType = GoalType.Duck;
             
@@ -110,12 +126,12 @@ namespace Managers
                 return;
 
             m_levelGoalsDictionary[goalType]--;
-            uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
+            m_uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
             
             CheckForSuccess();
         }
 
-        private static void CheckForSuccess()
+        private void CheckForSuccess()
         {
             bool isComplete = true;
 
@@ -128,13 +144,13 @@ namespace Managers
                 GameEventSystem.Invoke<GameWonEvent>();
         }
 
-        private static void UpdateMoveCount(object obj)
+        private void UpdateMoveCount(object obj)
         {
-            moveCount--;
+            m_moveCount--;
             
-            uiManager.UpdateMoveCount(moveCount);
+            m_uiManager.UpdateMoveCount(m_moveCount);
             
-            if (moveCount < 1)
+            if (m_moveCount < 1)
                 GameEventSystem.Invoke<GameLostEvent>();
         }
     }

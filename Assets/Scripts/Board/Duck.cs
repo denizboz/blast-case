@@ -1,7 +1,7 @@
 using Events;
-using Events.Implementations.Board;
-using Managers;
-using Utility;
+using Events.Implementations;
+using UnityEngine;
+using Utilities;
 
 namespace Board
 {
@@ -13,14 +13,12 @@ namespace Board
             SetSprite(sprite);
         }
 
-        public override void GetDestroyed()
+        protected override void OnFallComplete(bool hitBottom)
         {
-            ItemPooler.Return(this);
-            GameEventSystem.Invoke<DuckDestroyedEvent>(this);
-        }
-
-        public override void AddToChain()
-        {
+            if (!hitBottom)
+                return;
+            
+            GameEventSystem.Invoke<DuckHitBottomEvent>(this);
         }
     }
 }

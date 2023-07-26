@@ -1,22 +1,25 @@
 using UnityEngine;
 using Board;
+using CommonTools.Runtime.DependencyInjection;
 
 namespace Managers
 {
-    public class ItemSpawner : Manager
+    public class ItemSpawner : MonoBehaviour, IDependency
     {
         private ItemPooler m_itemPooler;
         private GridManager m_gridManager;
+        private BoardManager m_boardManager;
         
-        protected override void Awake()
+        public void Bind()
         {
-            dependencyContainer.Bind<ItemSpawner>(this);
+            DI.Bind(this);
         }
 
-        private void Start()
+        private void Awake()
         {
-            m_itemPooler = dependencyContainer.Resolve<ItemPooler>();
-            m_gridManager = dependencyContainer.Resolve<GridManager>();
+            m_itemPooler = DI.Resolve<ItemPooler>();
+            m_gridManager = DI.Resolve<GridManager>();
+            m_boardManager = DI.Resolve<BoardManager>();
         }
 
         public Item Spawn<T>(Vector2Int finalPosition, bool wholeColumn) where T : Item
@@ -29,9 +32,7 @@ namespace Managers
             item.SetWorldPosition(spawnPosWorld);
             item.SetGridPositionAndSorting(finalPosition);
             
-            var isDuckAndGoingToBottom = typeof(T) == typeof(Duck) && finalPosition.x == BoardManager.Bottom;
-            
-            item.MoveTo(finalPosWorld, isDuck: isDuckAndGoingToBottom);
+            item.MoveTo(finalPosWorld, toBottom: finalPosition.x == BoardManager.Bottom);
 
             return item;
         }

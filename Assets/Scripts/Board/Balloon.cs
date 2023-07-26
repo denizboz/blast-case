@@ -1,7 +1,7 @@
 using Events;
-using Events.Implementations.Board;
+using Events.Implementations;
 using Managers;
-using Utility;
+using Utilities;
 
 namespace Board
 {
@@ -13,16 +13,20 @@ namespace Board
             SetSprite(sprite);
         }
 
+        public override bool IsChainable(CubeType none)
+        {
+            return true;
+        }
+        
         public override void GetDestroyed()
         {
-            ItemPooler.Return(this);
-            BoardManager.RemoveItemFromBoard(this);
-            GameEventSystem.Invoke<BalloonDestroyedEvent>(this);
+            base.GetDestroyed();
+            GameEventSystem.Invoke<BalloonPoppedEvent>(this);
         }
-
-        public override void AddToChain()
+        
+        public override void AddToItemChain()
         {
-            BoardManager.AddToChainedItems(this);
+            GameEventSystem.Invoke<BalloonAddedToChainEvent>(this);
         }
     }
 }

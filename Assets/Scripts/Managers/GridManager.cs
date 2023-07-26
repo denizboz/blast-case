@@ -1,13 +1,13 @@
+using CommonTools.Runtime.DependencyInjection;
 using UnityEngine;
 
 namespace Managers
 {
-    [DefaultExecutionOrder(-10)]
-    public class GridManager : Manager
+    public class GridManager : MonoBehaviour, IDependency
     {
-        private readonly Transform[,] m_gridPoints = new Transform[gridSize, gridSize];
+        private Transform[,] m_gridPoints;
 
-        private const int gridSize = BoardManager.MaxSize;
+        private readonly int m_gridSize = BoardManager.MaxSize;
         
         private const float boardWidth = 10.9f;
         private const float itemWidth = 1.19f;
@@ -15,21 +15,26 @@ namespace Managers
 
         private const float spawnHeight = 6f;
 
-        protected override void Awake()
+        public void Bind()
         {
-            dependencyContainer.Bind<GridManager>(this);
-            
+            DI.Bind(this);
+        }
+        
+        private void Awake()
+        {
             CreateGrid();
         }
 
         private void CreateGrid()
         {
+            m_gridPoints = new Transform[m_gridSize, m_gridSize];
+            
             var pointsParent = new GameObject("GridPoints").transform;
             pointsParent.parent = transform;
 
-            for (int i = 0; i < gridSize; i++)
+            for (int i = 0; i < m_gridSize; i++)
             {
-                for (int j = 0; j < gridSize; j++)
+                for (int j = 0; j < m_gridSize; j++)
                 {
                     var x = borderThickness + (j + 0.5f) * itemWidth - boardWidth / 2f;
                     var y = borderThickness + (i + 0.5f) * itemWidth - boardWidth / 2f;
@@ -47,7 +52,7 @@ namespace Managers
                 }
             }
 
-            var gameManager = dependencyContainer.Resolve<GameManager>();
+            var gameManager = DI.Resolve<GameManager>();
             var boardSize = gameManager.GetCurrentBoardSize();
 
             var offsetX = boardSize.y % 2 == 1 ? 0f : itemWidth / 2f;

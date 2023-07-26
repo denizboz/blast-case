@@ -1,26 +1,27 @@
 using Board;
+using CommonTools.Runtime.DependencyInjection;
 using Events;
 using Events.Implementations;
-using Events.Implementations.Core;
-using Events.Implementations.Input;
 using UnityEngine;
 
 namespace Managers
 {
-    [DefaultExecutionOrder(-50)]
-    public class InputManager : Manager
+    public class InputManager : MonoBehaviour, IDependency
     {
-        private static Camera mainCam;
-        private static Ray ray;
+        private Camera m_mainCam;
+        private Ray m_ray;
 
         private bool m_isInputAllowed = true;
         
-        protected override void Awake()
+        public void Bind()
         {
-            dependencyContainer.Bind<InputManager>(this);
+            DI.Bind(this);
+        }
+        
+        private void Awake()
+        {
             Input.multiTouchEnabled = false;
-
-            mainCam = Camera.main;
+            m_mainCam = Camera.main;
             
             GameEventSystem.AddListener<GameWonEvent>(DisableInput);
             GameEventSystem.AddListener<GameLostEvent>(DisableInput);
@@ -34,13 +35,13 @@ namespace Managers
             if (!Input.GetMouseButtonDown(0))
                 return;
             
-            ray = mainCam.ScreenPointToRay(Input.mousePosition);
+            m_ray = m_mainCam.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out RaycastHit hit))
+            if (Physics.Raycast(m_ray, out RaycastHit hit))
             {
-                if (hit.transform.TryGetComponent(out ITappable item))
+                if (hit.transform.TryGetComponent(out Item item))
                 {
-                    GameEventSystem.Invoke<ItemTappedEvent>(item);
+                    item.OnTap();
                 }
             }
         }
