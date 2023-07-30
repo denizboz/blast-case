@@ -88,14 +88,14 @@ namespace Managers
 
             if (moreThanFive)
             {
-                cube.GetDestroyed();
+                cube.GetDestroyed(); // HERE
                 m_chainedItems.Remove(cube);
                 CreateRocket(cube.Position);
             }
 
             foreach (var item in m_chainedItems)
             {
-                item.GetDestroyed();
+                item.GetDestroyed(); // HERE
             }
             
             MakeItemsFall(m_chainedItems);

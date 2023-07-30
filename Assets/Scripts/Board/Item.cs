@@ -11,6 +11,8 @@ namespace Board
         public Vector2Int Position;
         public SpriteRenderer SRenderer;
 
+        public Vector3 WorldPosition => transform.position;
+
         private const float fallSpeed = 9f;
 
         public abstract void Setup(SpriteContainer container);

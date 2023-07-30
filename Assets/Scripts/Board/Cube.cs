@@ -28,7 +28,7 @@ namespace Board
         public override void GetDestroyed()
         {
             base.GetDestroyed();
-            GameEventSystem.Invoke<CubePoppedEvent>();
+            GameEventSystem.Invoke<CubePoppedEvent>(this);
         }
 
         public override bool IsChainable(CubeType type)
