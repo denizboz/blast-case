@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -8,7 +7,6 @@ using CommonTools.Runtime.DependencyInjection;
 using Events;
 using Events.Implementations;
 using Utilities;
-using Random = UnityEngine.Random;
 
 namespace Managers
 {
@@ -23,7 +21,7 @@ namespace Managers
 
         private CubeType m_tappedCubeType;
         
-        private ItemPooler m_itemPooler;
+        private ItemFactory m_itemFactory;
         private GridManager m_gridManager;
         private ItemSpawner m_itemSpawner;
 
@@ -44,7 +42,7 @@ namespace Managers
         
         private void Awake()
         {
-            m_itemPooler = DI.Resolve<ItemPooler>();
+            m_itemFactory = DI.Resolve<ItemFactory>();
             m_gridManager = DI.Resolve<GridManager>();
             m_itemSpawner = DI.Resolve<ItemSpawner>();
             
@@ -88,14 +86,14 @@ namespace Managers
 
             if (moreThanFive)
             {
-                cube.GetDestroyed(); // HERE
+                cube.GetDestroyed();
                 m_chainedItems.Remove(cube);
                 CreateRocket(cube.Position);
             }
 
             foreach (var item in m_chainedItems)
             {
-                item.GetDestroyed(); // HERE
+                item.GetDestroyed();
             }
             
             MakeItemsFall(m_chainedItems);
@@ -158,7 +156,7 @@ namespace Managers
 
         private void CreateRocket(Vector2Int gridPos)
         {
-            var rocket = m_itemPooler.Get<Rocket>();
+            var rocket = m_itemFactory.Get<Rocket>();
             var worldPos = m_gridManager.GetWorldPosition(gridPos);
             
             rocket.SetGridPositionAndSorting(gridPos);
@@ -329,7 +327,7 @@ namespace Managers
             {
                 for (int j = range2.Start; j < range2.End + 1; j++)
                 {
-                    var cube = m_itemPooler.Get<Cube>();
+                    var cube = m_itemFactory.Get<Cube>();
                     
                     cube.SetGridPositionAndSorting(new Vector2Int(i, j));
                     cube.transform.position = m_gridManager.GetWorldPosition(i, j);

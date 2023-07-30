@@ -6,7 +6,7 @@ namespace Managers
 {
     public class ItemSpawner : MonoBehaviour, IDependency
     {
-        private ItemPooler m_itemPooler;
+        private ItemFactory m_itemFactory;
         private GridManager m_gridManager;
         private BoardManager m_boardManager;
         
@@ -17,7 +17,7 @@ namespace Managers
 
         private void Awake()
         {
-            m_itemPooler = DI.Resolve<ItemPooler>();
+            m_itemFactory = DI.Resolve<ItemFactory>();
             m_gridManager = DI.Resolve<GridManager>();
             m_boardManager = DI.Resolve<BoardManager>();
         }
@@ -27,7 +27,7 @@ namespace Managers
             var spawnPosWorld = m_gridManager.GetSpawnPosition(gridPos: finalPosition, wholeColumn);
             var finalPosWorld = m_gridManager.GetWorldPosition(gridPos: finalPosition);
             
-            var item = m_itemPooler.Get<T>();
+            var item = m_itemFactory.Get<T>();
             
             item.SetWorldPosition(spawnPosWorld);
             item.SetGridPositionAndSorting(finalPosition);

@@ -9,7 +9,7 @@ using Utilities;
 
 namespace Managers
 {
-    public class ItemPooler : MonoBehaviour, IDependency
+    public class ItemFactory : MonoBehaviour, IDependency
     {
         [SerializeField] private SpriteContainer m_spriteContainer;
         [SerializeField] private GameObject m_allItems;
