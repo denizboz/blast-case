@@ -1,8 +1,8 @@
+using System;
 using DG.Tweening;
 using Events;
 using Events.Implementations;
 using UnityEngine;
-using Utilities;
 
 namespace Board
 {
@@ -10,13 +10,13 @@ namespace Board
     
     public class Rocket : Booster
     {
-        public RocketType Type;
+        public RocketType RocketType;
         
         [SerializeField] private Transform m_leftOrUp;
         [SerializeField] private Transform m_rightOrDown;
 
         private const float halfOffset = 0.165f;
-        public const int VarietySize = 2;
+        public static int VarietySize = Enum.GetValues(typeof(RocketType)).Length;
         
         public override void StartAnimation()
         {
@@ -29,7 +29,7 @@ namespace Board
 
         public void SetType(RocketType type)
         {
-            Type = type;
+            RocketType = type;
             transform.rotation = type == RocketType.Horizontal ? Quaternion.identity : Quaternion.Euler(-90f * Vector3.back);
             
             m_leftOrUp.localPosition = halfOffset * Vector3.left;
@@ -40,12 +40,6 @@ namespace Board
         {
             GameEventSystem.Invoke<MoveMadeEvent>();
             GameEventSystem.Invoke<RocketTappedEvent>(this);
-        }
-
-        public override void Setup(SpriteContainer container)
-        {
-            var rocketType = (RocketType)Random.Range(0, VarietySize);
-            SetType(rocketType);
         }
     }
 }

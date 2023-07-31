@@ -1,24 +1,25 @@
-using Board;
+using System;
+using System.Collections.Generic;
 using CommonTools.Runtime.DependencyInjection;
 using Events;
 using Events.Implementations;
 using TMPro;
 using UI;
 using UnityEngine;
-using Utilities;
 
 namespace Managers
 {
     public class UIManager : MonoBehaviour, IDependency
     {
-        [SerializeField] private SpriteContainer m_spriteContainer;
         [SerializeField] private TextMeshProUGUI m_moveCountUI;
         [SerializeField] private GameObject m_successPanel;
         [SerializeField] private GameObject m_failurePanel;
         [SerializeField] private RectTransform m_goalsArea;
         [SerializeField] private GoalUI[] m_goalFields;
-        
-        
+
+        private List<GoalUI> m_activeGoalFields;
+
+
         public void Bind()
         {
             DI.Bind(this);
@@ -31,11 +32,11 @@ namespace Managers
             GameEventSystem.AddListener<GameLostEvent>(ShowFailureUI);
         }
 
-        public void UpdateGoal(GoalType type, int count)
+        public void UpdateGoal(Type type, int count)
         {
-            foreach (var field in m_goalFields)
+            foreach (var field in m_activeGoalFields)
             {
-                if (field.Type == type)
+                if (field.Item.Type == type)
                     field.UpdateText(count);
             }
         }
@@ -48,33 +49,23 @@ namespace Managers
         private void LoadGoalUIs(object obj)
         {
             var gameManager = DI.Resolve<GameManager>();
-            
             var goals = gameManager.GetGoals();
 
             var areaWidth = m_goalsArea.sizeDelta.x;
             var fieldWidth = GoalUI.Width;
 
+            m_activeGoalFields = new List<GoalUI>(goals.Length);
+            
             for (var i = 0; i < goals.Length; i++)
             {
-                var goalType = goals[i].GoalType;
+                var goalItem = goals[i].Item;
 
-                Sprite sprite;
-
-                if ((int)goalType < Cube.VarietySize)
-                {
-                    sprite = m_spriteContainer.GetSprite<Cube>((CubeType)goalType);
-                }
-                else if ((int)goalType == Cube.VarietySize)
-                {
-                    sprite = m_spriteContainer.GetSprite<Balloon>();
-                }
-                else
-                {
-                    sprite = m_spriteContainer.GetSprite<Duck>();
-                }
+                var goalField = m_goalFields[i];
                 
-                m_goalFields[i].Set(goalType, sprite);
-                m_goalFields[i].UpdateText(goals[i].Target);
+                goalField.Set(goalItem, goalItem.Sprite);
+                goalField.UpdateText(goals[i].Target);
+                
+                m_activeGoalFields.Add(goalField);
             }
             
             if (goals.Length == 1)

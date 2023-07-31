@@ -14,12 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BoardSize: {x: 9, y: 9}
   NumberOfMoves: 50
-  Probabilities:
-    Cube: 0.8
-    Balloon: 0.14999999
-    Duck: 0.049999997
   Goals:
-  - GoalType: 1
+  - Item: {fileID: 5155087825097350697, guid: 87c5fa0dde039ca4b87d70acd5bf1920, type: 3}
     Target: 35
-  - GoalType: 5
+  - Item: {fileID: 3068161884540540544, guid: b91e564d1a7fa104b933ace2bb77dc3e, type: 3}
     Target: 15

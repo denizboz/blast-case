@@ -1,25 +1,26 @@
+using System;
 using UnityEngine;
 using DG.Tweening;
 using Events;
 using Events.Implementations;
-using Utilities;
 
 namespace Board
 {
     public abstract class Item : MonoBehaviour
     {
         public Vector2Int Position;
-        public SpriteRenderer SRenderer;
-
+        public SpriteRenderer Renderer;
+        
+        public Type Type => GetType();
+        public Sprite Sprite => Renderer.sprite;
         public Vector3 WorldPosition => transform.position;
 
         private const float fallSpeed = 9f;
 
-        public abstract void Setup(SpriteContainer container);
-
+        
         public virtual void OnTap() { }
 
-        public virtual bool IsChainable(CubeType cubeType)
+        public virtual bool IsChainable(Type cubeType)
         {
             return false;
         }
@@ -31,14 +32,6 @@ namespace Board
             GameEventSystem.Invoke<ItemDestroyedEvent>(this);
         }
         
-        public void SetSprite(Sprite sprite)
-        {
-            if (SRenderer == null)
-                return;
-            
-            SRenderer.sprite = sprite;
-        }
-        
         public void SetGridPositionAndSorting(Vector2Int gridPosition)
         {
             Position = gridPosition;
@@ -46,7 +39,7 @@ namespace Board
             if (this is Booster)
                 return;
             
-            SRenderer.sortingOrder = gridPosition.x;
+            Renderer.sortingOrder = gridPosition.x;
         }
 
         public void SetWorldPosition(Vector3 worldPos)
@@ -63,5 +56,22 @@ namespace Board
         }
         
         protected virtual void OnFallComplete(bool hitBottom) { }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            var hasRenderer = TryGetComponent(out SpriteRenderer sr);
+
+            if (hasRenderer)
+                Renderer = sr;
+        }
+#endif
+    }
+    
+    [Serializable]
+    public struct ItemProperty<T, U> where T : Item
+    {
+        public T Item;
+        public U Property;
     }
 }

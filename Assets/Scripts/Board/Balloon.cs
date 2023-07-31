@@ -1,19 +1,12 @@
+using System;
 using Events;
 using Events.Implementations;
-using Managers;
-using Utilities;
 
 namespace Board
 {
     public class Balloon : Item
     {
-        public override void Setup(SpriteContainer container)
-        {
-            var sprite = container.GetSprite<Balloon>();
-            SetSprite(sprite);
-        }
-
-        public override bool IsChainable(CubeType none)
+        public override bool IsChainable(Type type)
         {
             return true;
         }

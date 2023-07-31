@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Board;
+using Board.Cubes;
 using CommonTools.Runtime;
 using CommonTools.Runtime.DependencyInjection;
 using Events;
@@ -12,6 +14,7 @@ namespace Managers
 {
     public class BoardManager : MonoBehaviour, IDependency
     {
+        [SerializeField] private ItemTypeGenerator m_typeGenerator;
         [SerializeField] private SpriteRenderer m_borders;
         
         private Item[,] m_itemsOnBoard;
@@ -19,7 +22,7 @@ namespace Managers
         private List<Item> m_chainedItems;
         private int m_chainedCubeCount;
 
-        private CubeType m_tappedCubeType;
+        private Type m_tappedCubeType;
         
         private ItemFactory m_itemFactory;
         private GridManager m_gridManager;
@@ -27,8 +30,6 @@ namespace Managers
 
         private Vector2Int m_boardSize;
         
-        private ProbabilityData m_probabilities;
-
         public static int Bottom;
         private static int top;
 
@@ -62,15 +63,12 @@ namespace Managers
             
             FillItems();
             ResizeBorders();
-            
-            SetFallProbabilities();
         }
 
         private void OnCubeTapped(object tappedCube)
         {
             var cube = (Cube)tappedCube;
-
-            m_tappedCubeType = cube.Type;
+            m_tappedCubeType = tappedCube.GetType();
             
             m_chainedItems = new List<Item>();
             m_chainedCubeCount = 0;
@@ -170,7 +168,7 @@ namespace Managers
             var rocket = (Rocket)tappedRocket;
             var origin = rocket.Position;
 
-            var itemsToBeDestroyed = rocket.Type == RocketType.Horizontal
+            var itemsToBeDestroyed = rocket.RocketType == RocketType.Horizontal
                 ? m_itemsOnBoard.GetRow(origin.x)
                 : m_itemsOnBoard.GetColumn(origin.y);
             
@@ -183,7 +181,7 @@ namespace Managers
                 item.GetDestroyed();
             }
             
-            if (rocket.Type == RocketType.Horizontal)
+            if (rocket.RocketType == RocketType.Horizontal)
             {
                 MakeItemsFall(itemsToBeDestroyed);
                 SpawnNewItems(itemsToBeDestroyed);
@@ -251,28 +249,14 @@ namespace Managers
         {
             for (int i =  top - count + 1; i < top + 1; i++)
             {
+                var itemType = m_typeGenerator.GetRandomItemType();
                 var finalPos = new Vector2Int(i, column);
-                    
-                var randVal = Random.value;
 
-                if (randVal < m_probabilities.Cube)
-                {
-                    var cube = (Cube)m_itemSpawner.Spawn<Cube>(finalPos, wholeColumn);
-                    AddItemToBoard(cube);
-                }
-                else if (randVal < m_probabilities.Cube + m_probabilities.Balloon)
-                {
-                    var balloon = m_itemSpawner.Spawn<Balloon>(finalPos, wholeColumn);
-                    AddItemToBoard(balloon);
-                }
-                else
-                {
-                    var duck = m_itemSpawner.Spawn<Duck>(finalPos, wholeColumn);
-                    AddItemToBoard(duck);
-                }
+                var item = m_itemSpawner.Spawn(itemType, finalPos, wholeColumn);
+                AddItemToBoard(item);
             }
         }
-        
+
         private void AddItemToBoard(Item item)
         {
             var pos = item.Position;
@@ -292,12 +276,6 @@ namespace Managers
             
             item.SetGridPositionAndSorting(new Vector2Int(x, y));
             m_itemsOnBoard[x, y] = item;
-        }
-        
-        private void SetFallProbabilities()
-        {
-            var gameManager = DI.Resolve<GameManager>();
-            m_probabilities = gameManager.GetItemProbabilities();
         }
         
         private void ResizeBorders()
@@ -322,17 +300,18 @@ namespace Managers
 
             Bottom = range1.Start;
             top = range1.End;
-            
+
             for (int i = range1.Start; i < range1.End + 1; i++)
             {
                 for (int j = range2.Start; j < range2.End + 1; j++)
                 {
-                    var cube = m_itemFactory.Get<Cube>();
-                    
-                    cube.SetGridPositionAndSorting(new Vector2Int(i, j));
-                    cube.transform.position = m_gridManager.GetWorldPosition(i, j);
+                    var type = m_typeGenerator.GetRandomCubeType();
+                    var item = m_itemFactory.Get(type);
 
-                    m_itemsOnBoard[i, j] = cube;
+                    item.SetGridPositionAndSorting(new Vector2Int(i, j));
+                    item.transform.position = m_gridManager.GetWorldPosition(i, j);
+
+                    m_itemsOnBoard[i, j] = item;
                 }
             }
             

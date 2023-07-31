@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Board;
 using CommonTools.Runtime.DependencyInjection;
@@ -22,12 +23,12 @@ namespace Managers
             m_boardManager = DI.Resolve<BoardManager>();
         }
 
-        public Item Spawn<T>(Vector2Int finalPosition, bool wholeColumn) where T : Item
+        public Item Spawn(Type type, Vector2Int finalPosition, bool wholeColumn)
         {
             var spawnPosWorld = m_gridManager.GetSpawnPosition(gridPos: finalPosition, wholeColumn);
             var finalPosWorld = m_gridManager.GetWorldPosition(gridPos: finalPosition);
             
-            var item = m_itemFactory.Get<T>();
+            var item = m_itemFactory.Get(type);
             
             item.SetWorldPosition(spawnPosWorld);
             item.SetGridPositionAndSorting(finalPosition);

@@ -9,18 +9,22 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d56b4aacbe94e4082daa1e712a338e8, type: 3}
-  m_Name: ColorContainer
+  m_Script: {fileID: 11500000, guid: d7f6f7a8d4d649c7b7bf3f08de876d9f, type: 3}
+  m_Name: ProbabilityDistribution
   m_EditorClassIdentifier: 
-  isInitialized: 0
-  m_itemColors:
+  Occurrences:
   - Item: {fileID: -8542752778444514172, guid: 05a516f4f8996f84b88f570d352410cf, type: 3}
-    Property: {r: 0, g: 0.47095826, b: 0.8962264, a: 1}
+    Count: 17
   - Item: {fileID: -2119650442475107915, guid: 0c6d201d4a750d84193f8354674fcd15, type: 3}
-    Property: {r: 0.2687766, g: 0.9056604, b: 0, a: 1}
+    Count: 17
   - Item: {fileID: -8726282076059848470, guid: 22f78c4603c073648a94f4dc2fe0c44f, type: 3}
-    Property: {r: 0.8426082, g: 0, b: 0.9056604, a: 1}
+    Count: 17
   - Item: {fileID: 5155087825097350697, guid: 87c5fa0dde039ca4b87d70acd5bf1920, type: 3}
-    Property: {r: 1, g: 0.005025125, b: 0, a: 1}
+    Count: 17
   - Item: {fileID: -3104042246064727740, guid: 28c1c8431cbf2a74bb728583bbe77f36, type: 3}
-    Property: {r: 1, g: 0.8407079, b: 0, a: 1}
+    Count: 17
+  - Item: {fileID: 3068161884540540544, guid: b91e564d1a7fa104b933ace2bb77dc3e, type: 3}
+    Count: 10
+  - Item: {fileID: 3714768562503750241, guid: ad335b3aa61b095468287db4e344773b, type: 3}
+    Count: 5
+  m_totalCount: 100

@@ -1,16 +1,32 @@
+using System;
+using System.Collections.Generic;
 using Board;
 using UnityEngine;
 
 namespace Utilities
 {
-    [CreateAssetMenu(fileName = "ColorContainer", menuName = "New Color Container")]
-    public class ColorContainer : ScriptableObject
+    [CreateAssetMenu(fileName = "ColorContainer", menuName = "Color Container")]
+    public class ColorContainer : ContainerSO
     {
-        [SerializeField] private Color[] m_cubeColors;
+        [SerializeField] private ItemProperty<Item, Color>[] m_itemColors;
 
-        public Color GetCubeColor(CubeType cubeType)
+        private Dictionary<Type, Color> m_colorDictionary;
+
+        
+        public override void Initialize()
         {
-            return m_cubeColors[(int)cubeType];
+            m_colorDictionary = new Dictionary<Type, Color>(m_itemColors.Length);
+            
+            foreach (var pair in m_itemColors)
+            {
+                m_colorDictionary.Add(pair.Item.GetType(), pair.Property);
+            }
+        }
+        
+        public Color GetColor(Item item)
+        {
+            var type = item.GetType();
+            return m_colorDictionary[type];
         }
     }
 }

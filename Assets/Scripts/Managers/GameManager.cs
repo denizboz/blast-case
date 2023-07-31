@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Board;
@@ -14,7 +15,7 @@ namespace Managers
 
         private UIManager m_uiManager;
         
-        private readonly Dictionary<GoalType, int> m_levelGoalsDictionary = new Dictionary<GoalType, int>();
+        private readonly Dictionary<Type, int> m_levelGoalsDictionary = new Dictionary<Type, int>();
 
         private int m_moveCount;
 
@@ -45,7 +46,7 @@ namespace Managers
 
             for (var i = 0; i < goals.Length; i++)
             {
-                m_levelGoalsDictionary.Add(goals[i].GoalType, goals[i].Target);
+                m_levelGoalsDictionary.Add(goals[i].Item.Type, goals[i].Target);
             }
 
             m_moveCount = m_currentLevel.NumberOfMoves;
@@ -55,12 +56,7 @@ namespace Managers
         {
             return m_currentLevel.BoardSize;
         }
-
-        public ProbabilityData GetItemProbabilities()
-        {
-            return m_currentLevel.Probabilities;
-        }
-
+        
         public Goal[] GetGoals()
         {
             return m_currentLevel.Goals;
@@ -68,63 +64,15 @@ namespace Managers
 
         private void OnItemDestroyed(object item)
         {
-            switch (item)
-            {
-                case Cube cube:
-                    OnCubeDestroyed(cube);
-                    break;
-                case Balloon balloon:
-                    OnBalloonDestroyed(balloon);
-                    break;
-                case Duck duck:
-                    OnDuckDestroyed(duck);
-                    break;
-            }
-        }
-        
-        private void OnCubeDestroyed(Cube cube)
-        {
-            var cubeType = cube.Type;
-            var goalType = (GoalType)cubeType;
-
-            if (!m_levelGoalsDictionary.ContainsKey(goalType))
-                return;
-            
-            if (m_levelGoalsDictionary[goalType] == 0)
-                return;
-            
-            m_levelGoalsDictionary[goalType]--;
-            m_uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
-            
-            CheckForSuccess();
-        }
-
-        private void OnBalloonDestroyed(Balloon balloon)
-        {
-            var goalType = GoalType.Balloon;
+            var destroyedItem = (Item)item;
+            var goalType = destroyedItem.Type;
             
             if (!m_levelGoalsDictionary.ContainsKey(goalType))
                 return;
             
             if (m_levelGoalsDictionary[goalType] == 0)
                 return;
-
-            m_levelGoalsDictionary[goalType]--;
-            m_uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
             
-            CheckForSuccess();
-        }
-
-        private void OnDuckDestroyed(Duck duck)
-        {
-            var goalType = GoalType.Duck;
-            
-            if (!m_levelGoalsDictionary.ContainsKey(goalType))
-                return;
-            
-            if (m_levelGoalsDictionary[goalType] == 0)
-                return;
-
             m_levelGoalsDictionary[goalType]--;
             m_uiManager.UpdateGoal(goalType, m_levelGoalsDictionary[goalType]);
             

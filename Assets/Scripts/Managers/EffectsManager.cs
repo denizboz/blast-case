@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Board;
+using Board.Cubes;
 using CommonTools.Runtime.DependencyInjection;
 using Events;
 using Events.Implementations;
@@ -8,7 +8,7 @@ using Utilities;
 
 namespace Managers
 {
-    public class ParticlesManager : MonoBehaviour, IDependency
+    public class EffectsManager : MonoBehaviour, IDependency
     {
         [SerializeField] private GameObject m_particlesPrefab;
         [SerializeField] private ColorContainer m_colorContainer;
@@ -30,13 +30,12 @@ namespace Managers
         private void Play(object poppedCube)
         {
             var cube = (Cube)poppedCube;
-            var type = cube.Type;
 
             var particles = m_particlesPool.Dequeue();
             particles.transform.position = cube.WorldPosition;
     
             var mainModule = particles.main;
-            mainModule.startColor = m_colorContainer.GetCubeColor(type);
+            mainModule.startColor = m_colorContainer.GetColor(cube);
             
             particles.Play();
             m_particlesPool.Enqueue(particles);
