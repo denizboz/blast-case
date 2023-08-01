@@ -14,8 +14,10 @@ namespace Managers
 {
     public class BoardManager : MonoBehaviour, IDependency
     {
-        [SerializeField] private ItemTypeGenerator m_typeGenerator;
+        [SerializeField] private ItemContainerSO m_itemContainer;
         [SerializeField] private SpriteRenderer m_borders;
+
+        private ItemTypeGenerator m_typeGenerator;
         
         private Item[,] m_itemsOnBoard;
 
@@ -47,6 +49,8 @@ namespace Managers
             m_gridManager = DI.Resolve<GridManager>();
             m_itemSpawner = DI.Resolve<ItemSpawner>();
             
+            GameEventSystem.AddListener<GameLoadedEvent>(FillItems);
+            
             GameEventSystem.AddListener<CubeTappedEvent>(OnCubeTapped);
             GameEventSystem.AddListener<ItemDestroyedEvent>(RemoveItemFromBoard);
             GameEventSystem.AddListener<DuckHitBottomEvent>(OnDuckHitBottom);
@@ -54,14 +58,10 @@ namespace Managers
             
             GameEventSystem.AddListener<CubeLinkedToChainEvent>(FindSameColoredNeighbors);
             GameEventSystem.AddListener<BalloonAddedToChainEvent>(AddToChainedItems);
-        }
-
-        private void Start()
-        {
+            
             var gameManager = DI.Resolve<GameManager>();
             m_boardSize = gameManager.GetCurrentBoardSize();
             
-            FillItems();
             ResizeBorders();
         }
 
@@ -291,8 +291,12 @@ namespace Managers
             m_borders.size = new Vector2(newX, newY);
         }
         
-        private void FillItems()
+        private void FillItems(object probDistribution)
         {
+            var distribution = (ProbabilityDistributionSO)probDistribution;
+
+            m_typeGenerator = new ItemTypeGenerator(m_itemContainer, distribution);
+            
             m_itemsOnBoard = new Item[MaxSize, MaxSize];
 
             var range1 = BoardUtility.GetMidRange(m_boardSize.x, MaxSize);
@@ -314,7 +318,10 @@ namespace Managers
                     m_itemsOnBoard[i, j] = item;
                 }
             }
-            
+
+            var scaler = DI.Resolve<BoardScaler>();
+            scaler.ScaleBoard();
+
             GameEventSystem.Invoke<BoardLoadedEvent>();
         }
     }

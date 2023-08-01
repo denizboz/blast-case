@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   BoardSize: {x: 9, y: 9}
   NumberOfMoves: 50
+  ProbDistribution: {fileID: 11400000, guid: d94bcb88ead66284c8c107585091e813, type: 2}
   Goals:
   - Item: {fileID: 5155087825097350697, guid: 87c5fa0dde039ca4b87d70acd5bf1920, type: 3}
     Target: 35

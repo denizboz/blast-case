@@ -1362,7 +1362,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aaeae9970e9f4c28ac3610f10eaabfc7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_typeGenerator: {fileID: 11400000, guid: 1cb69c13cc19862419268ad5c0dc959e, type: 2}
+  m_itemContainer: {fileID: 11400000, guid: 0301ece925ef72243b94a49ddcbfae6c, type: 2}
   m_borders: {fileID: 797812304}
 --- !u!4 &974410305
 Transform:

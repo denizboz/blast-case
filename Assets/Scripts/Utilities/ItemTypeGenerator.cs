@@ -2,33 +2,30 @@ using System;
 using System.Linq;
 using Board.Cubes;
 using CommonTools.Runtime;
-using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Utilities
 {
-    [CreateAssetMenu(fileName = "ItemTypeGenerator", menuName = "Item Type Generator")]
-    public class ItemTypeGenerator : ContainerSO
+    public class ItemTypeGenerator
     {
-        [SerializeField] private ItemContainer m_itemContainer;
-        [SerializeField] private ProbabilityDistribution m_distribution;
+        private readonly Type[] m_cubeTypes;
+        private readonly Type[] m_itemTypes;
 
-        private Type[] m_cubeTypes;
-        private Type[] m_itemTypes;
+        private readonly Random m_random;
+        private readonly int m_totalCount;
         
-        private int m_totalCount;
-        
-        public override void Initialize()
+        public ItemTypeGenerator(ItemContainerSO itemContainer, ProbabilityDistributionSO distribution)
         {
-            m_cubeTypes = m_itemContainer.ItemPrefabs.Where(item => item is Cube)
+            m_random = new Random();
+            
+            m_cubeTypes = itemContainer.ItemPrefabs.Where(item => item is Cube)
                 .Select(cube => cube.Type).ToArray();
             
-            m_totalCount = m_distribution.Occurrences.Sum(info => info.Count);
+            m_totalCount = distribution.Occurrences.Sum(info => info.Count);
             m_itemTypes = new Type[m_totalCount];
 
             var index = 0;
             
-            foreach (var occurrence in m_distribution.Occurrences)
+            foreach (var occurrence in distribution.Occurrences)
             {
                 for (int i = 0; i < occurrence.Count; i++)
                 {
@@ -42,13 +39,13 @@ namespace Utilities
 
         public Type GetRandomItemType()
         {
-            var random = Random.Range(0, m_totalCount);
+            var random = m_random.Next(0, m_totalCount);
             return m_itemTypes[random];
         }
         
         public Type GetRandomCubeType()
         {
-            var random = Random.Range(0, m_cubeTypes.Length);
+            var random = m_random.Next(0, m_cubeTypes.Length);
             return m_cubeTypes[random];
         }
     }

@@ -10,6 +10,7 @@ namespace Utilities
         public Vector2Int BoardSize;
         public int NumberOfMoves = 50;
 
+        public ProbabilityDistributionSO ProbDistribution;
         public Goal[] Goals;
 
         private const int maxNumberOfGoals = 3;

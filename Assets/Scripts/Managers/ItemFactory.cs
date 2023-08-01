@@ -11,7 +11,7 @@ namespace Managers
 {
     public class ItemFactory : MonoBehaviour, IDependency
     {
-        [SerializeField] private ItemContainer m_itemContainer;
+        [SerializeField] private ItemContainerSO m_itemContainer;
         [SerializeField] private Transform m_itemsParent;
 
         private Dictionary<Type, Queue<Item>> m_poolDictionary;

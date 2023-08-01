@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Utilities
 {
     [CreateAssetMenu(fileName = "ProbabilityDistribution", menuName = "Probability Distribution")]
-    public class ProbabilityDistribution : ScriptableObject
+    public class ProbabilityDistributionSO : ScriptableObject
     {
         public OccurrenceInfo<Item>[] Occurrences;
 

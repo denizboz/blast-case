@@ -1,15 +1,16 @@
+using CommonTools.Runtime.DependencyInjection;
 using UnityEngine;
 
 namespace Utilities
 {
-    public class BoardScaler : MonoBehaviour
+    public class BoardScaler : MonoBehaviour, IDependency
     {
-        private void Awake()
+        public void Bind()
         {
-            ScaleBoard();
+            DI.Bind(this);
         }
-
-        private void ScaleBoard()
+        
+        public void ScaleBoard()
         {
             var ratio = (float)Screen.width / Screen.height;
             const float refRatio = 9f / 16f;

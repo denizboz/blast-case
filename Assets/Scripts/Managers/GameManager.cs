@@ -37,6 +37,7 @@ namespace Managers
 
         private void Start()
         {
+            GameEventSystem.Invoke<GameLoadedEvent>(m_currentLevel.ProbDistribution);
             m_uiManager.UpdateMoveCount(m_moveCount);
         }
 
