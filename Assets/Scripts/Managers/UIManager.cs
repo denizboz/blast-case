@@ -103,5 +103,12 @@ namespace Managers
         {
             m_failurePanel.SetActive(true);
         }
+
+        private void OnDestroy()
+        {
+            GameEventSystem.RemoveListener<LevelLoadedEvent>(LoadGoalUIs);
+            GameEventSystem.RemoveListener<GameWonEvent>(ShowSuccessUI);
+            GameEventSystem.RemoveListener<GameLostEvent>(ShowFailureUI);
+        }
     }
 }

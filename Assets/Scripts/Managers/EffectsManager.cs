@@ -53,5 +53,10 @@ namespace Managers
                 m_particlesPool.Enqueue(particles);
             }
         }
+
+        private void OnDestroy()
+        {
+            GameEventSystem.RemoveListener<CubePoppedEvent>(Play);
+        }
     }
 }

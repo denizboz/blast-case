@@ -101,5 +101,10 @@ namespace Managers
 
             m_borders.size = new Vector2(newX, newY);
         }
+
+        private void OnDestroy()
+        {
+            GameEventSystem.RemoveListener<BoardLoadedEvent>(OnBoardLoaded);
+        }
     }
 }

@@ -55,5 +55,11 @@ namespace Managers
         {
             m_isInputAllowed = false;
         }
+
+        private void OnDestroy()
+        {
+            GameEventSystem.RemoveListener<GameWonEvent>(DisableInput);
+            GameEventSystem.RemoveListener<GameLostEvent>(DisableInput);
+        }
     }
 }

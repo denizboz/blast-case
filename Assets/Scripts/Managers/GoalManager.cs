@@ -82,5 +82,12 @@ namespace Managers
             if (m_moveCount < 1)
                 GameEventSystem.Invoke<GameLostEvent>();
         }
+
+        private void OnDestroy()
+        {
+            GameEventSystem.RemoveListener<LevelLoadedEvent>(SetGoals);
+            GameEventSystem.RemoveListener<MoveMadeEvent>(UpdateMoveCount);
+            GameEventSystem.RemoveListener<ItemDestroyedEvent>(OnItemDestroyed);
+        }
     }
 }

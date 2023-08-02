@@ -317,5 +317,18 @@ namespace Managers
             
             GameEventSystem.Invoke<BoardLoadedEvent>(m_boardSize);
         }
+
+        private void OnDestroy()
+        {
+            GameEventSystem.RemoveListener<LevelLoadedEvent>(LoadItems);
+            
+            GameEventSystem.RemoveListener<CubeTappedEvent>(OnCubeTapped);
+            GameEventSystem.RemoveListener<ItemDestroyedEvent>(RemoveItemFromBoard);
+            GameEventSystem.RemoveListener<DuckHitBottomEvent>(OnDuckHitBottom);
+            GameEventSystem.RemoveListener<RocketTappedEvent>(OnRocketTapped);
+            
+            GameEventSystem.RemoveListener<CubeLinkedToChainEvent>(FindSameColoredNeighbors);
+            GameEventSystem.RemoveListener<BalloonAddedToChainEvent>(AddToChainedItems);
+        }
     }
 }

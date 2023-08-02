@@ -28,7 +28,7 @@ namespace Managers
         private void Awake()
         {
             CreatePools();
-            GameEventSystem.AddListener<ItemDestroyedEvent>(Return);
+            GameEventSystem.AddListener<ItemDestroyedEvent>(PutBackToPool);
         }
 
         public Item Get(Type type)
@@ -52,7 +52,7 @@ namespace Managers
             return item;
         }
         
-        private void Return(object returnedItem)
+        private void PutBackToPool(object returnedItem)
         {
             var item = (Item)returnedItem;
             var type = item.Type;
@@ -83,6 +83,11 @@ namespace Managers
                 
                 m_poolDictionary.Add(itemType, itemPool);
             }
+        }
+
+        private void OnDestroy()
+        {
+            GameEventSystem.RemoveListener<ItemDestroyedEvent>(PutBackToPool);
         }
     }
 }
