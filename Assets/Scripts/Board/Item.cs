@@ -1,4 +1,5 @@
 using System;
+using CommonTools.Runtime.TaskManagement;
 using UnityEngine;
 using DG.Tweening;
 using Events;
@@ -15,11 +16,14 @@ namespace Board
         public Sprite Sprite => Renderer.sprite;
         public Vector3 WorldPosition => transform.position;
 
-        private const float fallSpeed = 9f;
+        private Vector3 fallPos;
+        private float fallDuration;
+        
+        private const float fallSpeed = 12.5f;
 
         
         public virtual void OnTap() { }
-
+        public virtual void OrientRandom() { }
         public virtual bool IsChainable(Type cubeType)
         {
             return false;
@@ -47,16 +51,23 @@ namespace Board
             transform.position = worldPos;
         }
         
-        public void MoveTo(Vector3 pos, bool toBottom)
+        public void MoveTo(Vector3 pos, float delay = 0f)
         {
             var distance = Vector3.Distance(transform.position, pos);
-            var duration = distance / fallSpeed;
+
+            fallPos = pos;
+            fallDuration = distance / fallSpeed;
             
-            transform.DOMove(pos, duration).SetEase(Ease.InQuad).OnComplete(() => OnFallComplete(toBottom));
+            GameTask.Wait(delay).Do(StartTween);
+        }
+
+        private void StartTween()
+        {
+            transform.DOMove(fallPos, fallDuration).SetEase(Ease.InQuad).OnComplete(OnFallComplete);
         }
         
-        protected virtual void OnFallComplete(bool hitBottom) { }
-
+        protected virtual void OnFallComplete() { }
+    
 #if UNITY_EDITOR
         private void OnValidate()
         {

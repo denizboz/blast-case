@@ -1,39 +1,34 @@
 using System;
-using UnityEngine;
 using Board;
 using CommonTools.Runtime.DependencyInjection;
+using UnityEngine;
 
 namespace Managers
 {
-    public class ItemSpawner : MonoBehaviour, IDependency
+    public class ItemSpawner
     {
-        private ItemFactory m_itemFactory;
-        private GridManager m_gridManager;
-        private BoardManager m_boardManager;
+        private readonly ItemFactory m_itemFactory;
+        private readonly GridManager m_gridManager;
         
-        public void Bind()
+        public ItemSpawner()
         {
             DI.Bind(this);
-        }
-
-        private void Awake()
-        {
+            
             m_itemFactory = DI.Resolve<ItemFactory>();
             m_gridManager = DI.Resolve<GridManager>();
-            m_boardManager = DI.Resolve<BoardManager>();
         }
 
-        public Item Spawn(Type type, Vector2Int finalPosition, bool wholeColumn)
+        public Item Spawn(Type type, Vector2Int finalPos, float spawnDelay = 0f)
         {
-            var spawnPosWorld = m_gridManager.GetSpawnPosition(gridPos: finalPosition, wholeColumn);
-            var finalPosWorld = m_gridManager.GetWorldPosition(gridPos: finalPosition);
-            
+            var spawnPosWorld = m_gridManager.GetSpawnPosition(gridPos: finalPos);
+            var finalPosWorld = m_gridManager.GetWorldPosition(gridPos: finalPos);
+
             var item = m_itemFactory.Get(type);
-            
+
             item.SetWorldPosition(spawnPosWorld);
-            item.SetGridPositionAndSorting(finalPosition);
-            
-            item.MoveTo(finalPosWorld, toBottom: finalPosition.x == BoardManager.Bottom);
+            item.SetGridPositionAndSorting(finalPos);
+
+            item.MoveTo(finalPosWorld, spawnDelay);
 
             return item;
         }

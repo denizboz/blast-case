@@ -1,16 +1,15 @@
 using Events;
 using Events.Implementations;
+using Managers;
 
 namespace Board
 {
     public class Duck : Item
     {
-        protected override void OnFallComplete(bool hitBottom)
+        protected override void OnFallComplete()
         {
-            if (!hitBottom)
-                return;
-            
-            GameEventSystem.Invoke<DuckHitBottomEvent>(this);
+            if (Position.x == BoardManager.Bottom)
+                GameEventSystem.Invoke<DuckHitBottomEvent>(this);
         }
     }
 }

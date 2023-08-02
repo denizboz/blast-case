@@ -1,3 +1,4 @@
+using CommonTools.Runtime;
 using CommonTools.Runtime.DependencyInjection;
 using UnityEngine;
 
@@ -13,7 +14,7 @@ namespace Managers
         private const float itemWidth = 1.19f;
         private const float borderThickness = 0.1f;
 
-        private const float spawnHeight = 6f;
+        private const float spawnHeight = 10f;
 
         public void Bind()
         {
@@ -73,10 +74,10 @@ namespace Managers
             return m_gridPoints[gridPos.x, gridPos.y].position;
         }
         
-        public Vector3 GetSpawnPosition(Vector2Int gridPos, bool wholeColumn = false)
+        public Vector3 GetSpawnPosition(Vector2Int gridPos)
         {
-            var extraHeight = !wholeColumn ? 0f : spawnHeight;
-            return GetWorldPosition(gridPos) + (spawnHeight + extraHeight) * Vector3.up;
+            // return GetWorldPosition(gridPos) + spawnHeight * Vector3.up;
+            return GetWorldPosition(gridPos).WithY(spawnHeight);
         }
     }
 }

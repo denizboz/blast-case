@@ -3,20 +3,21 @@ using DG.Tweening;
 using Events;
 using Events.Implementations;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Board
 {
-    public enum RocketType { Horizontal, Vertical }
+    public enum Orientation { Horizontal, Vertical }
     
     public class Rocket : Booster
     {
-        public RocketType RocketType;
+        public Orientation Orientation;
         
         [SerializeField] private Transform m_leftOrUp;
         [SerializeField] private Transform m_rightOrDown;
 
         private const float halfOffset = 0.165f;
-        public static int VarietySize = Enum.GetValues(typeof(RocketType)).Length;
+        public static int VarietySize = Enum.GetValues(typeof(Orientation)).Length;
         
         public override void StartAnimation()
         {
@@ -27,10 +28,10 @@ namespace Board
             m_rightOrDown.DOLocalMove(rightFinalPos, 1f);
         }
 
-        public void SetType(RocketType type)
+        public override void OrientRandom()
         {
-            RocketType = type;
-            transform.rotation = type == RocketType.Horizontal ? Quaternion.identity : Quaternion.Euler(-90f * Vector3.back);
+            Orientation = Random.value > 0.5f ? Orientation.Horizontal : Orientation.Vertical;
+            transform.rotation = Orientation == Orientation.Horizontal ? Quaternion.identity : Quaternion.Euler(-90f * Vector3.back);
             
             m_leftOrUp.localPosition = halfOffset * Vector3.left;
             m_rightOrDown.localPosition = halfOffset * Vector3.right;

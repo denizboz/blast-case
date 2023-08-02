@@ -37,6 +37,8 @@ namespace Managers
 
         public const int MinSize = 3;
         public const int MaxSize = 9;
+
+        private const float spawnDelayStep = 0.15f;
         
         public void Bind()
         {
@@ -47,7 +49,8 @@ namespace Managers
         {
             m_itemFactory = DI.Resolve<ItemFactory>();
             m_gridManager = DI.Resolve<GridManager>();
-            m_itemSpawner = DI.Resolve<ItemSpawner>();
+
+            m_itemSpawner = new ItemSpawner();
             
             GameEventSystem.AddListener<GameLoadedEvent>(FillItems);
             
@@ -155,6 +158,8 @@ namespace Managers
         private void CreateRocket(Vector2Int gridPos)
         {
             var rocket = m_itemFactory.Get<Rocket>();
+            rocket.OrientRandom();
+            
             var worldPos = m_gridManager.GetWorldPosition(gridPos);
             
             rocket.SetGridPositionAndSorting(gridPos);
@@ -168,7 +173,7 @@ namespace Managers
             var rocket = (Rocket)tappedRocket;
             var origin = rocket.Position;
 
-            var itemsToBeDestroyed = rocket.RocketType == RocketType.Horizontal
+            var itemsToBeDestroyed = rocket.Orientation == Orientation.Horizontal
                 ? m_itemsOnBoard.GetRow(origin.x)
                 : m_itemsOnBoard.GetColumn(origin.y);
             
@@ -181,14 +186,14 @@ namespace Managers
                 item.GetDestroyed();
             }
             
-            if (rocket.RocketType == RocketType.Horizontal)
+            if (rocket.Orientation == Orientation.Horizontal)
             {
                 MakeItemsFall(itemsToBeDestroyed);
                 SpawnNewItems(itemsToBeDestroyed);
             }
             else
             {
-                SpawnNewItemsAtColumn(origin.y, count: m_boardSize.x, wholeColumn: true);
+                SpawnNewItemsAtColumn(origin.y, count: m_boardSize.x);
             }
         }
         
@@ -224,7 +229,7 @@ namespace Managers
                     UpdateItemPos(item1, k, item1.Position.y);
                     var emptyPos = m_gridManager.GetWorldPosition(k, item1.Position.y);
                         
-                    item1.MoveTo(emptyPos, toBottom: item1.Position.x == Bottom);
+                    item1.MoveTo(emptyPos);
 
                     break;
                 }
@@ -245,15 +250,19 @@ namespace Managers
             }
         }
 
-        private void SpawnNewItemsAtColumn(int column, int count, bool wholeColumn = false)
+        private void SpawnNewItemsAtColumn(int column, int count)
         {
+            var iterator = 0;
+
             for (int i =  top - count + 1; i < top + 1; i++)
             {
                 var itemType = m_typeGenerator.GetRandomItemType();
-                var finalPos = new Vector2Int(i, column);
+                var gridPos = new Vector2Int(i, column);
 
-                var item = m_itemSpawner.Spawn(itemType, finalPos, wholeColumn);
+                var item = m_itemSpawner.Spawn(itemType, gridPos, spawnDelay: iterator * spawnDelayStep);
                 AddItemToBoard(item);
+
+                iterator++;
             }
         }
 
