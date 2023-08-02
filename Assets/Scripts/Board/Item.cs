@@ -1,5 +1,5 @@
 using System;
-using CommonTools.Runtime.TaskManagement;
+using System.Threading.Tasks;
 using UnityEngine;
 using DG.Tweening;
 using Events;
@@ -51,21 +51,17 @@ namespace Board
             transform.position = worldPos;
         }
         
-        public void MoveTo(Vector3 pos, float delay = 0f)
+        public async void MoveTo(Vector3 pos, float delay = 0f)
         {
             var distance = Vector3.Distance(transform.position, pos);
 
             fallPos = pos;
             fallDuration = distance / fallSpeed;
             
-            GameTask.Wait(delay).Do(StartTween);
-        }
-
-        private void StartTween()
-        {
+            await Task.Delay(TimeSpan.FromSeconds(delay));
             transform.DOMove(fallPos, fallDuration).SetEase(Ease.InQuad).OnComplete(OnFallComplete);
         }
-        
+
         protected virtual void OnFallComplete() { }
     
 #if UNITY_EDITOR
