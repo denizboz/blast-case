@@ -1,6 +1,6 @@
 namespace Events.Implementations
 {
-    public class GameLoadedEvent : Event
+    public class GoalsSetEvent : Event
     {
         
     }

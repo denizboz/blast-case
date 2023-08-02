@@ -6,6 +6,7 @@ using Events.Implementations;
 using TMPro;
 using UI;
 using UnityEngine;
+using Utilities;
 
 namespace Managers
 {
@@ -27,12 +28,12 @@ namespace Managers
         
         private void Awake()
         {
-            GameEventSystem.AddListener<BoardLoadedEvent>(LoadGoalUIs);
+            GameEventSystem.AddListener<LevelLoadedEvent>(LoadGoalUIs);
             GameEventSystem.AddListener<GameWonEvent>(ShowSuccessUI);
             GameEventSystem.AddListener<GameLostEvent>(ShowFailureUI);
         }
 
-        public void UpdateGoal(Type type, int count)
+        public void UpdateGoalUI(Type type, int count)
         {
             foreach (var field in m_activeGoalFields)
             {
@@ -41,15 +42,17 @@ namespace Managers
             }
         }
         
-        public void UpdateMoveCount(int count)
+        public void UpdateMovesUI(int count)
         {
             m_moveCountUI.text = count.ToString();
         }
         
-        private void LoadGoalUIs(object obj)
+        private void LoadGoalUIs(object levelSO)
         {
-            var gameManager = DI.Resolve<GameManager>();
-            var goals = gameManager.GetGoals();
+            var level = (LevelSO)levelSO;
+            var goals = level.Goals;
+            
+            UpdateMovesUI(level.NumberOfMoves);
 
             var areaWidth = m_goalsArea.sizeDelta.x;
             var fieldWidth = GoalUI.Width;

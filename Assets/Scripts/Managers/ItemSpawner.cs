@@ -12,8 +12,6 @@ namespace Managers
         
         public ItemSpawner()
         {
-            DI.Bind(this);
-            
             m_itemFactory = DI.Resolve<ItemFactory>();
             m_gridManager = DI.Resolve<GridManager>();
         }

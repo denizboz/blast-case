@@ -1,11 +1,15 @@
 using CommonTools.Runtime;
 using CommonTools.Runtime.DependencyInjection;
+using Events;
+using Events.Implementations;
 using UnityEngine;
 
 namespace Managers
 {
     public class GridManager : MonoBehaviour, IDependency
     {
+        [SerializeField] private SpriteRenderer m_borders;
+        
         private Transform[,] m_gridPoints;
 
         private readonly int m_gridSize = BoardManager.MaxSize;
@@ -24,6 +28,7 @@ namespace Managers
         private void Awake()
         {
             CreateGrid();
+            GameEventSystem.AddListener<BoardLoadedEvent>(OnBoardLoaded);
         }
 
         private void CreateGrid()
@@ -76,8 +81,25 @@ namespace Managers
         
         public Vector3 GetSpawnPosition(Vector2Int gridPos)
         {
-            // return GetWorldPosition(gridPos) + spawnHeight * Vector3.up;
             return GetWorldPosition(gridPos).WithY(spawnHeight);
+        }
+        
+        private void OnBoardLoaded(object boardSize)
+        {
+            ResizeBorders((Vector2Int)boardSize);
+        }
+        
+        private void ResizeBorders(Vector2Int boardSize)
+        {
+            var borderSize = m_borders.size;
+
+            var correctionX = Mathf.Lerp(0, 0.08f, (9f - boardSize.y) / 9f);
+            var correctionY = Mathf.Lerp(0, 0.33f, (9f - boardSize.x) / 9f);
+            
+            var newX = (boardSize.y / 9f) * borderSize.x + correctionX;
+            var newY = (boardSize.x / 9f) * borderSize.y + correctionY;
+
+            m_borders.size = new Vector2(newX, newY);
         }
     }
 }

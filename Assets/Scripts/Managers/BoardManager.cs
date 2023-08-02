@@ -15,7 +15,6 @@ namespace Managers
     public class BoardManager : MonoBehaviour, IDependency
     {
         [SerializeField] private ItemContainerSO m_itemContainer;
-        [SerializeField] private SpriteRenderer m_borders;
 
         private ItemTypeGenerator m_typeGenerator;
         
@@ -52,7 +51,7 @@ namespace Managers
 
             m_itemSpawner = new ItemSpawner();
             
-            GameEventSystem.AddListener<GameLoadedEvent>(FillItems);
+            GameEventSystem.AddListener<LevelLoadedEvent>(LoadItems);
             
             GameEventSystem.AddListener<CubeTappedEvent>(OnCubeTapped);
             GameEventSystem.AddListener<ItemDestroyedEvent>(RemoveItemFromBoard);
@@ -61,11 +60,6 @@ namespace Managers
             
             GameEventSystem.AddListener<CubeLinkedToChainEvent>(FindSameColoredNeighbors);
             GameEventSystem.AddListener<BalloonAddedToChainEvent>(AddToChainedItems);
-            
-            var gameManager = DI.Resolve<GameManager>();
-            m_boardSize = gameManager.GetCurrentBoardSize();
-            
-            ResizeBorders();
         }
 
         private void OnCubeTapped(object tappedCube)
@@ -287,24 +281,14 @@ namespace Managers
             m_itemsOnBoard[x, y] = item;
         }
         
-        private void ResizeBorders()
+        private void LoadItems(object levelSO)
         {
-            var size = m_borders.size;
-
-            var correctionX = Mathf.Lerp(0, 0.08f, (9f - m_boardSize.y) / 9f);
-            var correctionY = Mathf.Lerp(0, 0.33f, (9f - m_boardSize.x) / 9f);
-            
-            var newX = (m_boardSize.y / 9f) * size.x + correctionX;
-            var newY = (m_boardSize.x / 9f) * size.y + correctionY;
-
-            m_borders.size = new Vector2(newX, newY);
-        }
-        
-        private void FillItems(object probDistribution)
-        {
-            var distribution = (ProbabilityDistributionSO)probDistribution;
+            var level = (LevelSO)levelSO;
+            var distribution = level.ProbDistribution;
 
             m_typeGenerator = new ItemTypeGenerator(m_itemContainer, distribution);
+
+            m_boardSize = level.BoardSize;
             
             m_itemsOnBoard = new Item[MaxSize, MaxSize];
 
@@ -330,8 +314,8 @@ namespace Managers
 
             var scaler = DI.Resolve<BoardScaler>();
             scaler.ScaleBoard();
-
-            GameEventSystem.Invoke<BoardLoadedEvent>();
+            
+            GameEventSystem.Invoke<BoardLoadedEvent>(m_boardSize);
         }
     }
 }
