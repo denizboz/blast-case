@@ -1333,7 +1333,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 112
+  Priority: 50
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -1877,7 +1877,7 @@ GameObject:
   - component: {fileID: 1618791160}
   - component: {fileID: 1618791159}
   m_Layer: 0
-  m_Name: SceneContext
+  m_Name: SceneBinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1960,7 +1960,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 70
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
@@ -2300,7 +2300,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 120
+  Priority: 60
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500

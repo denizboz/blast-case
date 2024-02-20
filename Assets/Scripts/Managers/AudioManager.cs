@@ -31,17 +31,17 @@ namespace Managers
             GameEventSystem.RemoveListener<DuckHitBottomEvent>(PlayDuckQuack);
         }
 
-        private void PlayCubeExplosion(object obj)
+        private void PlayCubeExplosion(object _)
         {
             m_cubeAudioSource.Play();
         }
 
-        private void PlayBalloonPop(object obj)
+        private void PlayBalloonPop(object _)
         {
             m_balloonAudioSource.Play();
         }
 
-        private void PlayDuckQuack(object obj)
+        private void PlayDuckQuack(object _)
         {
             m_duckAudioSource.Play();
         }

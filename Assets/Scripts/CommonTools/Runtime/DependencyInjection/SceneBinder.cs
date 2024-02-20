@@ -4,7 +4,7 @@ using UnityEngine;
 namespace CommonTools.Runtime.DependencyInjection
 {
     [DefaultExecutionOrder(-500)]
-    public class SceneContext : MonoBehaviour
+    public class SceneBinder : MonoBehaviour
     {
         private void Awake()
         {
