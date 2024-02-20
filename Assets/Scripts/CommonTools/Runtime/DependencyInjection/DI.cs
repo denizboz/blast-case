@@ -12,22 +12,15 @@ namespace CommonTools.Runtime.DependencyInjection
 
         public static void Bind<T>(T obj)
         {
-            var type = typeof(T);
-            
-            if (dictionary.ContainsKey(type))
-                dictionary[type] = obj;
-            else
-                dictionary.Add(type, obj);
+            dictionary.TryAdd(typeof(T), obj);
         }
 
         public static T Resolve<T>()
         {
-            var type = typeof(T);
-
-            if (!dictionary.ContainsKey(type))
-                throw new Exception($"No {type} reference in container.");
-
-            return (T)dictionary[type];
+            if (dictionary.TryGetValue(typeof(T), out object obj))
+                return (T)obj;
+            
+            throw new Exception($"No {typeof(T)} reference in container.");
         }
     }
 }

@@ -312,9 +312,6 @@ namespace Managers
                 }
             }
 
-            var scaler = DI.Resolve<BoardScaler>();
-            scaler.ScaleBoard();
-            
             GameEventSystem.Invoke<BoardLoadedEvent>(m_boardSize);
         }
 

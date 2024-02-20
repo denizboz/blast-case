@@ -27,11 +27,6 @@ namespace UI
             gameObject.SetActive(true);
         }
 
-        public void SetPositionWithX(float x)
-        {
-            m_rectTransform.anchoredPosition = m_rectTransform.anchoredPosition.WithX(x);
-        }
-        
         public void UpdateText(int val)
         {
             m_tmp.text = val.ToString();

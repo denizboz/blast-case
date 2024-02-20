@@ -53,10 +53,6 @@ namespace Managers
             var goals = level.Goals;
             
             UpdateMovesUI(level.NumberOfMoves);
-
-            var areaWidth = m_goalsArea.sizeDelta.x;
-            var fieldWidth = GoalUI.Width;
-
             m_activeGoalFields = new List<GoalUI>(goals.Length);
             
             for (var i = 0; i < goals.Length; i++)
@@ -69,28 +65,6 @@ namespace Managers
                 goalField.UpdateText(goals[i].Target);
                 
                 m_activeGoalFields.Add(goalField);
-            }
-            
-            if (goals.Length == 1)
-            {
-                m_goalFields[0].SetPositionWithX(0f);
-            }
-            else if (goals.Length == 2)
-            {
-                var gap = (areaWidth - 2f * fieldWidth) / 3f;
-                var x = fieldWidth / 2f + gap / 2f;
-                
-                m_goalFields[0].SetPositionWithX(-x);
-                m_goalFields[1].SetPositionWithX(x);
-            }
-            else if (goals.Length == 3)
-            {
-                var gap = (areaWidth - 3f * fieldWidth) / 2f;
-                var x = fieldWidth + gap;
-                
-                m_goalFields[0].SetPositionWithX(-x);
-                m_goalFields[1].SetPositionWithX(0f);
-                m_goalFields[2].SetPositionWithX(x);
             }
         }
 
